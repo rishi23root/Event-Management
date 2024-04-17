@@ -13,6 +13,7 @@ export type UpdateUserParams = {
   lastName: string
   username: string
   photo: string
+  type?: string
 }
 
 // ====== EVENT PARAMS
