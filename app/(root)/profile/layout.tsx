@@ -17,13 +17,14 @@ export default async function RootLayout({
           type: "new",
         },
       });
-    } else {
       userMeta = {
         ...userMeta,
         type: "new",
       };
     }
   }
+
+  // console.log(userMeta);
 
   return (
     <div>

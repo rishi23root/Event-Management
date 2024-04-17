@@ -9,12 +9,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Input } from "../ui/input";
-import { useState } from "react";
-import { updateUser } from "@/lib/actions/user.actions";
+import { updateUserType } from "@/lib/actions/user.actions";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 export default function UpdateNewUserType({ userId }: { userId: string }) {
   console.log("userId", userId);
@@ -51,7 +49,7 @@ export default function UpdateNewUserType({ userId }: { userId: string }) {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              updateUser(userId, { type: seletedtype });
+              updateUserType(userId, seletedtype);
             }}
           >
             update

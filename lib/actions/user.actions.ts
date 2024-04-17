@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { CreateUserParams, UpdateUserParams } from '@/types'
 import prisma from '../prisma'
+import { clerkClient } from '@clerk/nextjs'
 
 export async function createUser(user: CreateUserParams) {
   try {
@@ -41,6 +42,38 @@ export async function getUserById(userId: string) {
   } catch (error) {
     console.error(error)
   }
+}
+
+export async function updateUserType(clerkId: string, type: string) {
+  console.log('updating type for clerkId', clerkId)
+  try {
+    const updatedUser = await prisma.user.update({
+      where: {
+        clerkId
+      },
+      data: {
+        type
+      },
+      select: {
+        id: true,
+        clerkId: true,
+        type: true
+      }
+    })
+
+    if (!updatedUser) throw new Error('User update failed')
+    // first read the user 
+    await clerkClient.users.updateUserMetadata(clerkId, {
+      publicMetadata: {
+        userId: updatedUser.id,
+        type: updatedUser.type
+      }
+    })
+  } catch (error) {
+    console.error(error)
+  }
+
+
 }
 
 export async function updateUser(clerkId: string, user: UpdateUserParams) {
