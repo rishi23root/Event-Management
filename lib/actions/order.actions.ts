@@ -3,11 +3,10 @@
 import Stripe from 'stripe';
 import { CheckoutOrderParams, CreateOrderParams, GetOrdersByEventParams, GetOrdersByUserParams } from "@/types"
 import { redirect } from 'next/navigation';
-import { handleError } from '../utils';
 import { connectToDatabase } from '../database';
 import Order from '../database/models/order.model';
 import Event from '../database/models/event.model';
-import {ObjectId} from 'mongodb';
+import { ObjectId } from 'mongodb';
 import User from '../database/models/user.model';
 
 export const checkoutOrder = async (order: CheckoutOrderParams) => {
@@ -47,7 +46,7 @@ export const checkoutOrder = async (order: CheckoutOrderParams) => {
 export const createOrder = async (order: CreateOrderParams) => {
   try {
     await connectToDatabase();
-    
+
     const newOrder = await Order.create({
       ...order,
       event: order.eventId,
@@ -56,7 +55,8 @@ export const createOrder = async (order: CreateOrderParams) => {
 
     return JSON.parse(JSON.stringify(newOrder));
   } catch (error) {
-    handleError(error);
+    console.error(error);
+    throw Error('Failed to create order', error);
   }
 }
 
@@ -112,7 +112,8 @@ export async function getOrdersByEvent({ searchString, eventId }: GetOrdersByEve
 
     return JSON.parse(JSON.stringify(orders))
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    throw Error('Failed to create order', error);
   }
 }
 
@@ -143,6 +144,7 @@ export async function getOrdersByUser({ userId, limit = 3, page }: GetOrdersByUs
 
     return { data: JSON.parse(JSON.stringify(orders)), totalPages: Math.ceil(ordersCount / limit) }
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    throw Error('Failed to create order', error);
   }
 }

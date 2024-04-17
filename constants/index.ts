@@ -1,11 +1,13 @@
+import { EventObject } from "@/types"
+
 export const headerLinks = [
   {
     label: 'Home',
     route: '/',
   },
   {
-    label: 'Create Event',
-    route: '/events/create',
+    label: 'Events',
+    route: '/events/',
   },
   {
     label: 'My Profile',
@@ -13,15 +15,15 @@ export const headerLinks = [
   },
 ]
 
-export const eventDefaultValues = {
+export const eventDefaultValues: EventObject = {
   title: '',
   description: '',
-  location: '',
-  imageUrl: '',
+  location: 'online',
+  coordinates: '',
+  url: '',
+  image: '',
   startDateTime: new Date(),
   endDateTime: new Date(),
   categoryId: '',
-  price: '',
-  isFree: false,
-  url: '',
+  contact: '',
 }

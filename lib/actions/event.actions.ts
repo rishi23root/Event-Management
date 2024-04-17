@@ -1,12 +1,9 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
-
 import { connectToDatabase } from '@/lib/database'
 import Event from '@/lib/database/models/event.model'
 import User from '@/lib/database/models/user.model'
 import Category from '@/lib/database/models/category.model'
-import { handleError } from '@/lib/utils'
 
 import {
   CreateEventParams,
@@ -16,6 +13,8 @@ import {
   GetEventsByUserParams,
   GetRelatedEventsByCategoryParams,
 } from '@/types'
+import prisma from '../prisma'
+
 
 const getCategoryByName = async (name: string) => {
   return Category.findOne({ name: { $regex: name, $options: 'i' } })
@@ -28,71 +27,160 @@ const populateEvent = (query: any) => {
 }
 
 // CREATE
-export async function createEvent({ userId, event, path }: CreateEventParams) {
+export async function createEvent({ userId, eventInfo }: CreateEventParams) {
   try {
-    await connectToDatabase()
 
-    const organizer = await User.findById(userId)
+    console.log('creating event for user ', userId, eventInfo.title)
+
+    const organizer = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+      },
+    })
+
     if (!organizer) throw new Error('Organizer not found')
 
-    const newEvent = await Event.create({ ...event, category: event.categoryId, organizer: userId })
-    revalidatePath(path)
+    const newEvent = await prisma.event.create({
+      data: {
+        title: eventInfo.title,
+        description: eventInfo.description,
+        location: eventInfo.location,
+        coordinates: eventInfo.coordinates,
+        contact: eventInfo.contact,
+        url: eventInfo.url,
+        image: eventInfo.image,
+        startDateTime: eventInfo.startDateTime,
+        endDateTime: eventInfo.endDateTime,
+        organizer: {
+          connect: {
+            id: userId,
 
-    return JSON.parse(JSON.stringify(newEvent))
+          },
+        },
+        category: {
+          connect: {
+            id: eventInfo.categoryId,
+          },
+        }
+      }
+    })
+
+    return newEvent
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
 
 // GET ONE EVENT BY ID
 export async function getEventById(eventId: string) {
   try {
-    await connectToDatabase()
-
-    const event = await populateEvent(Event.findById(eventId))
+    console.log('getting event by id', eventId)
+    const event = await prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      include: {
+        organizer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    })
 
     if (!event) throw new Error('Event not found')
 
-    return JSON.parse(JSON.stringify(event))
+    return event
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
 
 // UPDATE
-export async function updateEvent({ userId, event, path }: UpdateEventParams) {
+export async function updateEvent({ userId, eventId, eventInfo }: UpdateEventParams) {
   try {
-    await connectToDatabase()
 
-    const eventToUpdate = await Event.findById(event._id)
-    if (!eventToUpdate || eventToUpdate.organizer.toHexString() !== userId) {
+    console.log('updating event for user ', userId, eventId, eventInfo.title)
+    const eventToUpdate = await prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      select: {
+        id: true,
+        organizer: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    })
+
+    if (!eventToUpdate || eventToUpdate.organizer.id !== userId) {
       throw new Error('Unauthorized or event not found')
     }
 
-    const updatedEvent = await Event.findByIdAndUpdate(
-      event._id,
-      { ...event, category: event.categoryId },
-      { new: true }
-    )
-    revalidatePath(path)
+    const updatedEvent = await prisma.event.update({
+      where: {
+        id: eventId,
+      },
+      data: {
+        title: eventInfo.title,
+        description: eventInfo.description,
+        location: eventInfo.location,
+        coordinates: eventInfo.coordinates,
+        contact: eventInfo.contact,
+        url: eventInfo.url,
+        image: eventInfo.image,
+        startDateTime: eventInfo.startDateTime,
+        endDateTime: eventInfo.endDateTime,
+        category: {
+          connect: {
+            id: eventInfo.categoryId,
+          },
+        },
+      },
+    })
 
-    return JSON.parse(JSON.stringify(updatedEvent))
+    return updatedEvent
+
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
 
 // DELETE
-export async function deleteEvent({ eventId, path }: DeleteEventParams) {
+export async function deleteEvent({ eventId }: DeleteEventParams) {
   try {
-    await connectToDatabase()
-
-    const deletedEvent = await Event.findByIdAndDelete(eventId)
-    if (deletedEvent) revalidatePath(path)
+    console.log('deleting event by id', eventId)
+    const deletedEvent = await prisma.event.delete({
+      where: {
+        id: eventId,
+      },
+    })
+    return deletedEvent
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
+
+
+
+
 
 // GET ALL EVENTS
 export async function getAllEvents({ query, limit = 6, page, category }: GetAllEventsParams) {
@@ -119,7 +207,8 @@ export async function getAllEvents({ query, limit = 6, page, category }: GetAllE
       totalPages: Math.ceil(eventsCount / limit),
     }
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
 
@@ -141,7 +230,8 @@ export async function getEventsByUser({ userId, limit = 6, page }: GetEventsByUs
 
     return { data: JSON.parse(JSON.stringify(events)), totalPages: Math.ceil(eventsCount / limit) }
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
 
@@ -168,6 +258,7 @@ export async function getRelatedEventsByCategory({
 
     return { data: JSON.parse(JSON.stringify(events)), totalPages: Math.ceil(eventsCount / limit) }
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
