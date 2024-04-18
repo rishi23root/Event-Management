@@ -1,10 +1,9 @@
 "use client";
 
 import { deleteEvent } from "@/lib/actions/event.actions";
-import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { revalidatePath } from "next/cache";
+import { useRouter } from "next/navigation";
+import { Button } from "../ui/button";
 
 export default function OrganiserActions({ eventId }: { eventId: string }) {
   const router = useRouter();
