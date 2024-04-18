@@ -61,16 +61,14 @@ export default async function ProfilePage({ searchParams }: SearchParamProps) {
         </section>
 
         <section className="wrapper my-8">
-          {/* <Collection
-          data={orderedEvents}
-          emptyTitle="No event tickets purchased yet"
-          emptyStateSubtext="No worries - plenty of exciting events to explore!"
-          collectionType="My_Tickets"
-          limit={3}
-          page={1}
-          urlParamName="ordersPage"
-          totalPages={1}
-        /> */}
+          {/* 
+          ### updates here and how 
+           */}
+          <Collection
+            data={regiesteredEvent}
+            emptyTitle="No event tickets purchased yet"
+            emptyStateSubtext="No worries - plenty of exciting events to explore!"
+          />
         </section>
       </>
     );

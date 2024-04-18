@@ -1,9 +1,16 @@
+'use server'
 import prisma from "../prisma"
 
 // add a new user registration data in the event
 export const registerUser = async ({ userDbId, eventId }: {
     userDbId: string, eventId: string
 }) => {
+
+    // add updates like register only once 
+    // check if user is already registered in the event
+    // can't register in his own event
+
+
     try {
 
         try {
@@ -69,13 +76,6 @@ export const getRegistersByEvent = async (eventId: string) => {
                     id: {
                         in: attendees
                     }
-                },
-                select: {
-                    id: true,
-                    email: true,
-                    photo: true,
-                    firstName: true,
-                    lastName: true,
                 }
             })
             return users
@@ -109,6 +109,21 @@ export const getRegiestersByUser = async (userId: string) => {
                     id: {
                         in: volenteer
                     }
+                },
+                include: {
+                    organizer: {
+                        select: {
+                            id: true,
+                            firstName: true,
+                            lastName: true,
+                        },
+                    },
+                    category: {
+                        select: {
+                            id: true,
+                            name: true,
+                        },
+                    },
                 }
             })
             return events

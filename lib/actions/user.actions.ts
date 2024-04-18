@@ -69,6 +69,7 @@ export async function updateUserType(clerkId: string, type: string) {
         type: updatedUser.type
       }
     })
+    revalidatePath('/profile', 'page')
   } catch (error) {
     console.error(error)
   }
