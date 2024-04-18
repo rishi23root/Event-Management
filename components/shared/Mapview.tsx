@@ -1,61 +1,46 @@
-"use client"
+"use client";
 
-import React, { useRef, useEffect, useState } from 'react';
-import * as maptilersdk from '@maptiler/sdk';
+import { cn } from "@/lib/utils";
+import * as maptilersdk from "@maptiler/sdk";
 import "@maptiler/sdk/dist/maptiler-sdk.css";
-import { geocodeAddress } from '@/lib/actions/gelocate.actions';
+import { useEffect, useRef } from "react";
 
-function Mapview() {
-    const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
-    useEffect(() => {
-        async function fetchData() {
-            const address = 'noida';
-            const data = await geocodeAddress(address);
-            if (data) {
-                setLocation(data);
-            } else {
-                console.log('Failed to fetch location data');
-            }
-        }
+const zoom = 13;
 
-        fetchData();
-    }, []);
+function Mapview({
+  location,
+  className,
+}: {
+  location: { lat: number; lng: number }[];
+  className?: string;
+}) {
+  const mapContainer = useRef<any>(null);
+  const map = useRef<any>(null);
+  const noida = { lng: 77.3272147, lat: 28.5706333 };
+  maptilersdk.config.apiKey = "i9FuGGABnoZwqpXaBGfi";
 
+  useEffect(() => {
+    if (map.current) return; // stops map from intializing more than once
 
-    const mapContainer = useRef<HTMLDivElement>(null);
-    const map = useRef<maptilersdk.Map | null>(null);
-    const [zoom] = useState(14);
-    maptilersdk.config.apiKey = 'i9FuGGABnoZwqpXaBGfi';
-  
-    useEffect(() => {
-        if (!mapContainer.current || !location) return; //check the availibility
+    map.current = new maptilersdk.Map({
+      container: mapContainer.current,
+      style: maptilersdk.MapStyle.STREETS,
+      center: [noida.lng, noida.lat],
+      zoom: zoom,
+    }) as maptilersdk.Map;
 
-        map.current = new maptilersdk.Map({
-            container: mapContainer.current,
-            style: maptilersdk.MapStyle.HYBRID,
-            center: [location.lon , location.lat],
-            geolocate: maptilersdk.GeolocationType.POINT,
-            zoom: zoom
-        });
+    new maptilersdk.Marker({ color: "#32cd32" })
+      .setLngLat([location[0].lng, location[0].lat])
+      .addTo(map.current);
+    // location.forEach((palce) => {
+    // });
+  }, []);
 
-        new maptilersdk.Marker({ color: "#32cd32" })
-            .setLngLat([location.lon, location.lat])
-            .addTo(map.current);
-    }, [location, zoom]);
-
-   
-    return (
-        <div className='map-wrap'>
-            <div ref={mapContainer} className='map' />
-            {location ? (
-                <div>
-                    Latitude: {location.lat}, Longitude: {location.lon}
-                </div>
-            ) : (
-                <div>Loading...</div>
-            )}
-        </div>
-    );
+  return (
+    <div className={cn("map-wrap", className)}>
+      <div ref={mapContainer} className="map h-full" />
+    </div>
+  );
 }
 
 export default Mapview;

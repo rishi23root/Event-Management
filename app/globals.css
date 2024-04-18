@@ -74,7 +74,7 @@
 }
 
 body {
-  font-family: var(--font-poppins)
+  font-family: var(--font-poppins);
 }
 
 .filter-grey {
@@ -250,7 +250,7 @@ body {
 .cl-formButtonPrimary:hover,
 .cl-formButtonPrimary:focus,
 .cl-formButtonPrimary:active {
-  background-color: #028d00
+  background-color: #028d00;
 }
 
 /* ========================================== REACT-DATEPICKER STYLES */
@@ -276,14 +276,14 @@ body {
 }
 
 .map-wrap {
+  border: 2px solid #f1f1f1;
   position: relative;
   width: 100%;
-  height: calc(100vh - 77px); /* calculate height of the screen minus the heading */
 }
 
 .map {
   position: absolute;
   width: 100%;
-  height: 60%;
+  height: 100%;
   border-radius: 20px;
 }

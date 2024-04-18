@@ -4,6 +4,7 @@ import Mapview from "@/components/shared/Mapview";
 import Search from "@/components/shared/Search";
 import { Button } from "@/components/ui/button";
 import { getAllEvents } from "@/lib/actions/event.actions";
+import { geocodeAddress } from "@/lib/actions/gelocate.actions";
 import { SearchParamProps } from "@/types";
 import { EventSchemaT } from "@/types/DbSchema";
 import { currentUser } from "@clerk/nextjs";
@@ -11,7 +12,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+// testing code
+// get the lat and lon from the address
+// const address = "noida";
+// const data = await geocodeAddress(address);
+// return lat : '28.5706333', lon: '77.3272147'
+
 export default async function Home({ searchParams }: SearchParamProps) {
+  // const data = await geocodeAddress("noida");
+  // console.log("location data:", data); // lat and lon of the address
+
   const user = await currentUser();
   const userType = user?.publicMetadata.type;
 
@@ -40,7 +50,7 @@ export default async function Home({ searchParams }: SearchParamProps) {
               connecting NGOs and volunteers for a greener future!
             </p>
             <Button size="lg" asChild className="button w-full sm:w-fit">
-              <Link href="#events">Explore Now</Link>
+              <Link href="/events">Explore Now</Link>
             </Button>
           </div>
           <div className="rounded-lg ">
@@ -53,6 +63,12 @@ export default async function Home({ searchParams }: SearchParamProps) {
             />
           </div>
         </div>
+      </section>
+      <section className="wrapper my-8 flex flex-col gap-8 md:gap-12 max-h-fit">
+        <Mapview
+          location={[{ lng: 77.3272147, lat: 28.5706333 }]}
+          className="h-[40vh]"
+        />
       </section>
 
       <section
@@ -74,9 +90,6 @@ export default async function Home({ searchParams }: SearchParamProps) {
           emptyStateSubtext="Come back later"
           userDbId="hii"
         />
-
-
-        <Mapview/>
       </section>
     </>
   );
