@@ -175,13 +175,12 @@ export async function deleteEvent({ eventId }: {
 // ======================================
 // GET ALL EVENTS
 
-export async function getAllEvents({ query, limit = 6, category = '' }: {
+export async function getAllEvents({ query, category = '' }: {
   query: string
   category: string
-  limit: number
 }) {
   try {
-    console.log('getting all events', query, category, limit)
+    // console.log('getting all events', query, category)
 
     const events = await prisma.event.findMany({
       where: {
@@ -198,7 +197,6 @@ export async function getAllEvents({ query, limit = 6, category = '' }: {
           },
         },
       },
-      take: limit,
       include: {
         organizer: {
           select: {

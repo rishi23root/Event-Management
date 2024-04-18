@@ -24,7 +24,7 @@ export async function getUserById(userId: string) {
   try {
     const user = await prisma.user.findUnique({
       where: {
-        id: userId
+        clerkId: userId
       },
       select: {
         id: true,
@@ -69,6 +69,7 @@ export async function updateUserType(clerkId: string, type: string) {
         type: updatedUser.type
       }
     })
+    revalidatePath('/profile', 'page')
   } catch (error) {
     console.error(error)
   }

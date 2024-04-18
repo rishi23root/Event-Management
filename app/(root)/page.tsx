@@ -6,17 +6,25 @@ import { Button } from "@/components/ui/button";
 import { getAllEvents } from "@/lib/actions/event.actions";
 import { SearchParamProps } from "@/types";
 import { EventSchemaT } from "@/types/DbSchema";
+import { currentUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function Home({ searchParams }: SearchParamProps) {
+  const user = await currentUser();
+  const userType = user?.publicMetadata.type;
+
+  if (user && userType === "new") {
+    redirect("/profile");
+  }
+
   const searchText = (searchParams?.query as string) || "";
   const category = (searchParams?.category as string) || "";
 
   const events = await getAllEvents({
     query: searchText,
     category,
-    limit: 6,
   });
 
   return (

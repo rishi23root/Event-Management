@@ -1,7 +1,7 @@
 import Collection from "@/components/shared/Collection";
 import { Button } from "@/components/ui/button";
 import { getEventsByUser } from "@/lib/actions/event.actions";
-import { getOrdersByUser } from "@/lib/actions/register.actions";
+import { getRegiestersByUser } from "@/lib/actions/register.actions";
 import { SearchParamProps } from "@/types";
 import { EventSchemaT } from "@/types/DbSchema";
 import { currentUser } from "@clerk/nextjs";
@@ -44,11 +44,10 @@ export default async function ProfilePage({ searchParams }: SearchParamProps) {
         </section>
       </>
     );
-  }
-
-  // const orders = await getOrdersByUser({ userId, page: 1 });
-  // const orderedEvents = orders?.data.map((order: IOrder) => order.event) || [];
-  else {
+  } else if (userType === "volunteer") {
+    const regiesteredEvent = await getRegiestersByUser(userId);
+    console.log(regiesteredEvent);
+    // const orderedEvents = orders?.data.map((order: IOrder) => order.event) || [];
     return (
       <>
         {/* My Tickets */}
@@ -62,18 +61,18 @@ export default async function ProfilePage({ searchParams }: SearchParamProps) {
         </section>
 
         <section className="wrapper my-8">
-          {/* <Collection
-          data={orderedEvents}
-          emptyTitle="No event tickets purchased yet"
-          emptyStateSubtext="No worries - plenty of exciting events to explore!"
-          collectionType="My_Tickets"
-          limit={3}
-          page={1}
-          urlParamName="ordersPage"
-          totalPages={1}
-        /> */}
+          {/* 
+          ### updates here and how 
+           */}
+          <Collection
+            data={regiesteredEvent}
+            emptyTitle="No event tickets purchased yet"
+            emptyStateSubtext="No worries - plenty of exciting events to explore!"
+          />
         </section>
       </>
     );
+  } else {
+    return null;
   }
 }

@@ -5,6 +5,7 @@ import {
   getEventById,
   getRelatedEventsByCategory,
 } from "@/lib/actions/event.actions";
+import { getRegistersByEvent } from "@/lib/actions/register.actions";
 import { formatDateTime } from "@/lib/utils";
 import { SearchParamProps } from "@/types";
 import { EventSchemaT } from "@/types/DbSchema";
@@ -37,6 +38,9 @@ const EventDetails = async ({
     categoryId: event.category.id,
     eventId: event.id,
   });
+
+  const users = await getRegistersByEvent(event.id);
+  console.log(users);
 
   return (
     <>
@@ -125,6 +129,31 @@ const EventDetails = async ({
           </div>
         </div>
       </section>
+
+      {userDbId === event.userId && (
+        <section className="wrapper my-8 flex flex-col gap-8 md:gap-12">
+          <h2 className="h2-bold ">Registed users</h2>
+          <div>
+            {users?.map((user) => (
+              // update ##############################################3
+              // create a table view for the users who registered for the event with number of users at top of the table
+              // or create a new componet for this all together
+              <div key={user.id} className="flex items-center gap-2">
+                <Image
+                  src={user.photo}
+                  alt="user image"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
+                <p className="p-medium-16 lg:p-regular-20">
+                  {user.firstName} {user.lastName}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* EVENTS with the same category */}
       <section className="wrapper my-8 flex flex-col gap-8 md:gap-12">
