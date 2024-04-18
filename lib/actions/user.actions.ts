@@ -73,8 +73,6 @@ export async function updateUserType(clerkId: string, type: string) {
   } catch (error) {
     console.error(error)
   }
-
-
 }
 
 export async function updateUser(clerkId: string, user: UpdateUserParams) {

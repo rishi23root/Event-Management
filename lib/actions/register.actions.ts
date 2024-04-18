@@ -1,20 +1,37 @@
 'use server'
+import { revalidatePath } from "next/cache"
 import prisma from "../prisma"
 
 // add a new user registration data in the event
 export const registerUser = async ({ userDbId, eventId }: {
     userDbId: string, eventId: string
 }) => {
-
-    // add updates like register only once 
-    // check if user is already registered in the event
-    // can't register in his own event
-
-
     try {
-
         try {
-            const event = await prisma.event.update({
+            // get the event data
+            const eventData = await prisma.event.findUnique({
+                where: {
+                    id: eventId
+                },
+                select: {
+                    attendees: true,
+                    userId: true
+                }
+            })
+
+            // check if user is already registered in the event
+            if (eventData?.attendees.includes(userDbId)) {
+                console.log("User is already registered in the event")
+                return false
+            }
+
+            // can't register in his own event
+            if (eventData?.userId === userDbId) {
+                console.log("User can't register in his own event")
+                return false
+            }
+
+            await prisma.event.update({
                 where: {
                     id: eventId
                 },
@@ -31,8 +48,7 @@ export const registerUser = async ({ userDbId, eventId }: {
         }
 
         try {
-            const user = await prisma.user.update({
-
+            await prisma.user.update({
                 where: {
                     id: userDbId
                 },
@@ -47,6 +63,8 @@ export const registerUser = async ({ userDbId, eventId }: {
             // console.error("Error adding event in user :", error)
             throw new Error(error as unknown as string)
         }
+        revalidatePath(`/events/${eventId}`)
+
         return true
     } catch (error) {
         console.error(error)
