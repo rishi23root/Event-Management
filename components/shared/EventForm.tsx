@@ -6,7 +6,7 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormMessage
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -167,7 +167,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
         </div>
 
         {/* location and condinates */}
-        <div className="flex flex-col gap-5 md:flex-row">
+        <div className="flex flex-col gap-5 ">
           <FormField
             control={form.control}
             name="location"
@@ -193,6 +193,21 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
               </FormItem>
             )}
           />
+
+          {/* 
+          1. get lot and long from loacition
+          2. show the location on map using markers 
+          */}
+          <div className="flex flex-col gap-5 md:flex-row w-full">
+            <div className="flex-center w-full overflow-hidden rounded-2xl h-[40vh]">
+              <iframe
+                title="con"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14005.909575911941!2d77.13092180929353!3d28.645421158896152!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d0304934fb67d%3A0x232534e44837b1bf!2sKirti%20Nagar%2C%20Delhi!5e0!3m2!1sen!2sin!4v1713452824070!5m2!1sen!2sin"
+                className="w-full h-full"
+                loading="lazy"
+              />
+            </div>
+          </div>
         </div>
 
         {/* start and end date time */}

@@ -1,7 +1,125 @@
-// add a new user registration data in the event 
+import prisma from "../prisma"
+
+// add a new user registration data in the event
+export const registerUser = async ({ userDbId, eventId }: {
+    userDbId: string, eventId: string
+}) => {
+    try {
+
+        try {
+            const event = await prisma.event.update({
+                where: {
+                    id: eventId
+                },
+                data: {
+                    // append user id to the attendees array
+                    attendees: {
+                        push: userDbId
+                    }
+                }
+            })
+        } catch (error) {
+            // console.error("Error registering user in event :", error)
+            throw new Error(error as unknown as string)
+        }
+
+        try {
+            const user = await prisma.user.update({
+
+                where: {
+                    id: userDbId
+                },
+                data: {
+                    // append event id to the volunteerEvents array
+                    volenteer: {
+                        push: eventId
+                    }
+                }
+            })
+        } catch (error) {
+            // console.error("Error adding event in user :", error)
+            throw new Error(error as unknown as string)
+        }
+        return true
+    } catch (error) {
+        console.error(error)
+        return false
+    }
+
+
+}
 
 // get all registers by event id
+export const getRegistersByEvent = async (eventId: string) => {
+    try {
+        const event = await prisma.event.findUnique({
+            where: {
+                id: eventId
+            },
+            select: {
+                attendees: true
+            }
+        })
 
-// get all events by user registrated 
+        // loop through the attendees array and get the user data
+        const attendees = event?.attendees
+        if (attendees) {
+            const users = await prisma.user.findMany({
+                where: {
+                    id: {
+                        in: attendees
+                    }
+                },
+                select: {
+                    id: true,
+                    email: true,
+                    photo: true,
+                    firstName: true,
+                    lastName: true,
+                }
+            })
+            return users
+        }
+        else {
+            return []
+        }
+    } catch (error) {
+        console.error(error)
+        return null
+    }
+}
 
-export const getOrdersByUser = () => { }
+// get all events user registrated 
+export const getRegiestersByUser = async (userId: string) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId
+            },
+            select: {
+                volenteer: true
+            }
+        })
+
+        // loop through the volenteer array and get the event data
+        const volenteer = user?.volenteer
+        if (volenteer) {
+            const events = await prisma.event.findMany({
+                where: {
+                    id: {
+                        in: volenteer
+                    }
+                }
+            })
+            return events
+        }
+        else {
+            return []
+        }
+    } catch (error) {
+        console.error(error)
+        return null
+    }
+}
+
+// export const getOrdersByUser = () => { }
