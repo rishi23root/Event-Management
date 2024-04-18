@@ -1,8 +1,9 @@
 "use client";
 
+import { EventSchemaT } from "@/types/DbSchema";
 import { SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import Link from "next/link";
-import React from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import { EventSchemaT } from "@/types/DbSchema";
 import { useRouter } from "next/navigation";

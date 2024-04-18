@@ -1,5 +1,6 @@
 import CategoryFilter from "@/components/shared/CategoryFilter";
 import Collection from "@/components/shared/Collection";
+import Mapview from "@/components/shared/Mapview";
 import Search from "@/components/shared/Search";
 import { Button } from "@/components/ui/button";
 import { getAllEvents } from "@/lib/actions/event.actions";
@@ -68,11 +69,14 @@ export default async function Home({ searchParams }: SearchParamProps) {
         </div>
 
         <Collection
-          data={events as EventSchemaT[]}
+          data={events as unknown as EventSchemaT[]}
           emptyTitle="No Events Found"
           emptyStateSubtext="Come back later"
-          userDbId=""
+          userDbId="hii"
         />
+
+
+        <Mapview/>
       </section>
     </>
   );
