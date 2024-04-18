@@ -1,13 +1,4 @@
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ICategory } from "@/lib/database/models/category.model";
-import { startTransition, useEffect, useState } from "react";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -18,12 +9,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   createCategory,
   getAllCategories,
 } from "@/lib/actions/category.actions";
 import { AllCategories, Category } from "@/types";
+import { startTransition, useEffect, useState } from "react";
+import { Input } from "../ui/input";
 
 type DropdownProps = {
   value: string;
