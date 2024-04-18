@@ -94,7 +94,7 @@ export const getRegiestersByUser = async (userId: string) => {
     try {
         const user = await prisma.user.findUnique({
             where: {
-                id: userId
+                clerkId: userId
             },
             select: {
                 volenteer: true

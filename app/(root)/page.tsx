@@ -15,7 +15,7 @@ export default async function Home({ searchParams }: SearchParamProps) {
   const userType = user?.publicMetadata.type;
 
   if (user && userType === "new") {
-    redirect("/porfile");
+    redirect("/profile");
   }
 
   const searchText = (searchParams?.query as string) || "";

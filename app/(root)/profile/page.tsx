@@ -44,7 +44,7 @@ export default async function ProfilePage({ searchParams }: SearchParamProps) {
         </section>
       </>
     );
-  } else {
+  } else if (userType === "volunteer") {
     const regiesteredEvent = await getRegiestersByUser(userId);
     console.log(regiesteredEvent);
     // const orderedEvents = orders?.data.map((order: IOrder) => order.event) || [];
@@ -74,5 +74,7 @@ export default async function ProfilePage({ searchParams }: SearchParamProps) {
         </section>
       </>
     );
+  } else {
+    return null;
   }
 }
