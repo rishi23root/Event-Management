@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { EventSchemaT } from "@/types/DbSchema";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
+import { registerUser } from "@/lib/actions/register.actions";
 
 const RegisterComponent = ({ event }: { event: EventSchemaT }) => {
   const { user } = useUser();
@@ -23,18 +24,23 @@ const RegisterComponent = ({ event }: { event: EventSchemaT }) => {
       router.push(`/events/${eventId}`);
       return;
     }
+    // save data in the backend using db actions
+    const response = await registerUser({ userDbId, eventId });
+    console.log(response);
 
-    // save data in the backend using db actions 
-    
-
+    if (response) {
+      console.log("User registered successfully");
+    } else {
+      console.error("Error registering user");
+    }
   };
 
   return (
-    <div className="flex items-center gap-3">
+    <span className="flex items-center gap-3">
       {hasEventFinished ? (
-        <p className="p-2 text-red-400">
+        <span className="p-2 text-red-400">
           Sorry, tickets are no longer available.
-        </p>
+        </span>
       ) : (
         <>
           <SignedOut>
@@ -61,7 +67,7 @@ const RegisterComponent = ({ event }: { event: EventSchemaT }) => {
           </SignedIn>
         </>
       )}
-    </div>
+    </span>
   );
 };
 

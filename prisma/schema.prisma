@@ -16,6 +16,8 @@ model User {
   lastName  String
   photo     String
   type      String   @default("new")
+  volenteer String[] @default([])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Event     Event[]
@@ -42,6 +44,7 @@ model Event {
   contact       String
   categoryId    String   @db.ObjectId
   userId        String   @db.ObjectId
+  attendees     String[] @default([])
 
   category  Category @relation(fields: [categoryId], references: [id])
   organizer User     @relation(fields: [userId], references: [id])

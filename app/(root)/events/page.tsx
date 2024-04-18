@@ -27,7 +27,6 @@ export default async function showListOfAllEvent({
   const events = await getAllEvents({
     query: searchText,
     category,
-    limit: 6,
   });
 
   // GET ALL EVENTS in future and show them
