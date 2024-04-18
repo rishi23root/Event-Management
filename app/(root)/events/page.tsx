@@ -9,12 +9,18 @@ import { SearchParamProps } from "@/types";
 import { EventSchemaT } from "@/types/DbSchema";
 import { currentUser } from "@clerk/nextjs";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function showListOfAllEvent({
   searchParams,
 }: SearchParamProps) {
   const user = await currentUser();
   const userType = user?.publicMetadata.type;
+
+  if (userType === "new") {
+    redirect("/porfile");
+  }
+
   const searchText = (searchParams?.query as string) || "";
   const category = (searchParams?.category as string) || "";
 

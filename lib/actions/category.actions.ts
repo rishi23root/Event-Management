@@ -29,7 +29,7 @@ export const getAllCategories = async () => {
         name: true
       }
     })
-    console.log("all Category:", categories)
+    // console.log("all Category:", categories)
 
     return categories
   } catch (error) {
