@@ -1,6 +1,5 @@
 import React from "react";
 import Card from "./Card";
-import Pagination from "./Pagination";
 import { EventSchemaT } from "@/types/DbSchema";
 
 type CollectionProps = {

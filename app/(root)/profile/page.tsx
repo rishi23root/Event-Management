@@ -4,9 +4,9 @@ import { getEventsByUser } from "@/lib/actions/event.actions";
 import { getRegiestersByUser } from "@/lib/actions/register.actions";
 import { SearchParamProps } from "@/types";
 import { EventSchemaT } from "@/types/DbSchema";
-import { currentUser } from "@clerk/nextjs";
 import Link from "next/link";
 import React from "react";
+import { currentUser } from '@clerk/nextjs';
 
 export default async function ProfilePage({ searchParams }: SearchParamProps) {
   const user = await currentUser();
@@ -61,14 +61,14 @@ export default async function ProfilePage({ searchParams }: SearchParamProps) {
         </section>
 
         <section className="wrapper my-8">
-          {/* 
-          ### updates here and how 
-           */}
-          <Collection
-            data={regiesteredEvent}
-            emptyTitle="No event tickets purchased yet"
-            emptyStateSubtext="No worries - plenty of exciting events to explore!"
-          />
+          {regiesteredEvent?.length && (
+            <Collection
+              data={regiesteredEvent as EventSchemaT[]}
+              emptyTitle="No event tickets purchased yet"
+              emptyStateSubtext="No worries - plenty of exciting events to explore!"
+              userDbId={userDbId}
+            />
+          )}
         </section>
       </>
     );

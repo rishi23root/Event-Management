@@ -69,6 +69,7 @@ export type EventSchemaBaseT = {
     endDateTime: Date;
     contact: string;
     categoryId: string;
+    attendees: string[];
     userId: string;
     createdAt: Date;
     updatedAt: Date;
