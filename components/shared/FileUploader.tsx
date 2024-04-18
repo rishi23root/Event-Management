@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 // tasks of the file uploader component
 // - display the image if there is one
 // - allow the user to upload a new image
+// - compress the image before converting it to base64
 // - convert the image to a base64 string,
 
 type FileUploaderProps = {
@@ -19,18 +20,63 @@ export function FileUploader({ image, onFieldChange }: FileUploaderProps) {
 
   const convertFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === "string") {
-          resolve(reader.result);
-        } else {
-          reject(new Error("Error converting file to base64"));
+      // Compress image before converting to base64
+      const maxSizeKB = 900;
+      const maxSizeBytes = maxSizeKB * 1024;
+      const image = new Image();
+      image.src = URL.createObjectURL(file);
+      image.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(
+            new Error("Error compressing image: Canvas context not supported")
+          );
+          return;
         }
+        const width = image.width;
+        const height = image.height;
+        const aspectRatio = width / height;
+        let targetWidth = width;
+        let targetHeight = height;
+        if (file.size > maxSizeBytes) {
+          if (width > height) {
+            targetWidth = Math.sqrt(maxSizeBytes * aspectRatio);
+            targetHeight = maxSizeBytes / targetWidth;
+          } else {
+            targetHeight = Math.sqrt(maxSizeBytes / aspectRatio);
+            targetWidth = maxSizeBytes / targetHeight;
+          }
+        }
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        ctx.drawImage(image, 0, 0, targetWidth, targetHeight);
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error("Error compressing image: Blob not created"));
+            return;
+          }
+          const compressedFile = new File([blob], file.name, {
+            type: "image/jpeg",
+            lastModified: Date.now(),
+          });
+          const compressedReader = new FileReader();
+          compressedReader.onload = () => {
+            if (typeof compressedReader.result === "string") {
+              resolve(compressedReader.result);
+            } else {
+              reject(new Error("Error converting compressed file to base64"));
+            }
+          };
+          compressedReader.onerror = (error) => {
+            reject(error);
+          };
+          compressedReader.readAsDataURL(compressedFile);
+        }, "image/jpeg");
       };
-      reader.onerror = (error) => {
+      image.onerror = (error) => {
         reject(error);
       };
-      reader.readAsDataURL(file);
     });
   };
 

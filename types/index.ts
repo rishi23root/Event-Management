@@ -29,57 +29,19 @@ export type Category = {
 
 export type AllCategories = Category[]
 
-
-
 // ====== EVENT PARAMS
 
-export type EventObject = {
+export type EventFormObject = {
   title: string
   description: string
   location: string
   coordinates: string
   url: string
-  image: string
+  image: string | null
   startDateTime: Date
   endDateTime: Date
   categoryId: string
   contact: string
-}
-
-
-export type CreateEventParams = {
-  userId: string
-  eventInfo: EventObject
-}
-
-export type UpdateEventParams = {
-  userId: string
-  eventId: string
-  eventInfo: EventObject
-}
-
-export type DeleteEventParams = {
-  eventId: string
-}
-
-export type GetAllEventsParams = {
-  query: string
-  category: string
-  limit: number
-  page: number
-}
-
-export type GetEventsByUserParams = {
-  userId: string
-  limit?: number
-  page: number
-}
-
-export type GetRelatedEventsByCategoryParams = {
-  categoryId: string
-  eventId: string
-  limit?: number
-  page: number | string
 }
 
 export type Event = {

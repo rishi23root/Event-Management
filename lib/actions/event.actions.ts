@@ -1,33 +1,17 @@
 'use server'
 
-import { connectToDatabase } from '@/lib/database'
-import Event from '@/lib/database/models/event.model'
-import User from '@/lib/database/models/user.model'
-import Category from '@/lib/database/models/category.model'
-
 import {
-  CreateEventParams,
-  UpdateEventParams,
-  DeleteEventParams,
-  GetAllEventsParams,
-  GetEventsByUserParams,
-  GetRelatedEventsByCategoryParams,
+  EventFormObject
 } from '@/types'
+import { revalidatePath } from 'next/cache'
 import prisma from '../prisma'
 
 
-const getCategoryByName = async (name: string) => {
-  return Category.findOne({ name: { $regex: name, $options: 'i' } })
-}
-
-const populateEvent = (query: any) => {
-  return query
-    .populate({ path: 'organizer', model: User, select: '_id firstName lastName' })
-    .populate({ path: 'category', model: Category, select: '_id name' })
-}
-
 // CREATE
-export async function createEvent({ userId, eventInfo }: CreateEventParams) {
+export async function createEvent({ userId, eventInfo }: {
+  userId: string
+  eventInfo: EventFormObject
+}) {
   try {
 
     console.log('creating event for user ', userId, eventInfo.title)
@@ -110,7 +94,11 @@ export async function getEventById(eventId: string) {
 }
 
 // UPDATE
-export async function updateEvent({ userId, eventId, eventInfo }: UpdateEventParams) {
+export async function updateEvent({ userId, eventId, eventInfo }: {
+  userId: string
+  eventId: string
+  eventInfo: EventFormObject
+}) {
   try {
 
     console.log('updating event for user ', userId, eventId, eventInfo.title)
@@ -154,6 +142,10 @@ export async function updateEvent({ userId, eventId, eventInfo }: UpdateEventPar
       },
     })
 
+    if (updatedEvent) {
+      revalidatePath(`/events/${eventId}/update`)
+    }
+
     return updatedEvent
 
   } catch (error) {
@@ -163,7 +155,9 @@ export async function updateEvent({ userId, eventId, eventInfo }: UpdateEventPar
 }
 
 // DELETE
-export async function deleteEvent({ eventId }: DeleteEventParams) {
+export async function deleteEvent({ eventId }: {
+  eventId: string
+}) {
   try {
     console.log('deleting event by id', eventId)
     const deletedEvent = await prisma.event.delete({
@@ -178,34 +172,52 @@ export async function deleteEvent({ eventId }: DeleteEventParams) {
   }
 }
 
-
-
-
-
+// ======================================
 // GET ALL EVENTS
-export async function getAllEvents({ query, limit = 6, page, category }: GetAllEventsParams) {
+
+export async function getAllEvents({ query, limit = 6, category = '' }: {
+  query: string
+  category: string
+  limit: number
+}) {
   try {
-    await connectToDatabase()
+    console.log('getting all events', query, category, limit)
 
-    const titleCondition = query ? { title: { $regex: query, $options: 'i' } } : {}
-    const categoryCondition = category ? await getCategoryByName(category) : null
-    const conditions = {
-      $and: [titleCondition, categoryCondition ? { category: categoryCondition._id } : {}],
-    }
+    const events = await prisma.event.findMany({
+      where: {
+        endDateTime: {
+          gt: new Date(),
+        },
+        title: {
+          // does need to be exact match
+          contains: query,
+        },
+        category: {
+          name: {
+            contains: category,
+          },
+        },
+      },
+      take: limit,
+      include: {
+        organizer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    })
 
-    const skipAmount = (Number(page) - 1) * limit
-    const eventsQuery = Event.find(conditions)
-      .sort({ createdAt: 'desc' })
-      .skip(skipAmount)
-      .limit(limit)
+    return events
 
-    const events = await populateEvent(eventsQuery)
-    const eventsCount = await Event.countDocuments(conditions)
-
-    return {
-      data: JSON.parse(JSON.stringify(events)),
-      totalPages: Math.ceil(eventsCount / limit),
-    }
   } catch (error) {
     console.error(error)
     // throw Error("error", error.message)
@@ -213,22 +225,31 @@ export async function getAllEvents({ query, limit = 6, page, category }: GetAllE
 }
 
 // GET EVENTS BY ORGANIZER
-export async function getEventsByUser({ userId, limit = 6, page }: GetEventsByUserParams) {
+export async function getEventsByUser({ userDbId }: {
+  userDbId: string
+}) {
   try {
-    await connectToDatabase()
-
-    const conditions = { organizer: userId }
-    const skipAmount = (page - 1) * limit
-
-    const eventsQuery = Event.find(conditions)
-      .sort({ createdAt: 'desc' })
-      .skip(skipAmount)
-      .limit(limit)
-
-    const events = await populateEvent(eventsQuery)
-    const eventsCount = await Event.countDocuments(conditions)
-
-    return { data: JSON.parse(JSON.stringify(events)), totalPages: Math.ceil(eventsCount / limit) }
+    const events = await prisma.event.findMany({
+      where: {
+        userId: userDbId,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        organizer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      }
+    })
+    return events
   } catch (error) {
     console.error(error)
     // throw Error("error", error.message)
@@ -239,24 +260,36 @@ export async function getEventsByUser({ userId, limit = 6, page }: GetEventsByUs
 export async function getRelatedEventsByCategory({
   categoryId,
   eventId,
-  limit = 3,
-  page = 1,
-}: GetRelatedEventsByCategoryParams) {
+}: {
+  categoryId: string
+  eventId: string
+}) {
   try {
-    await connectToDatabase()
+    const events = await prisma.event.findMany({
+      where: {
+        categoryId: categoryId,
+        id: {
+          not: eventId,
+        },
+      },
+      include: {
+        organizer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    })
 
-    const skipAmount = (Number(page) - 1) * limit
-    const conditions = { $and: [{ category: categoryId }, { _id: { $ne: eventId } }] }
-
-    const eventsQuery = Event.find(conditions)
-      .sort({ createdAt: 'desc' })
-      .skip(skipAmount)
-      .limit(limit)
-
-    const events = await populateEvent(eventsQuery)
-    const eventsCount = await Event.countDocuments(conditions)
-
-    return { data: JSON.parse(JSON.stringify(events)), totalPages: Math.ceil(eventsCount / limit) }
+    return events
   } catch (error) {
     console.error(error)
     // throw Error("error", error.message)

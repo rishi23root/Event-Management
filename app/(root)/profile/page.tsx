@@ -4,19 +4,23 @@ import { getEventsByUser } from "@/lib/actions/event.actions";
 import { getOrdersByUser } from "@/lib/actions/order.actions";
 import { IOrder } from "@/lib/database/models/order.model";
 import { SearchParamProps } from "@/types";
-import { auth, currentUser } from "@clerk/nextjs";
+import { EventSchemaT } from "@/types/DbSchema";
+import { currentUser } from "@clerk/nextjs";
 import Link from "next/link";
 import React from "react";
 
-const ProfilePage = async ({ searchParams }: SearchParamProps) => {
+export default async function ProfilePage({ searchParams }: SearchParamProps) {
   const user = await currentUser();
   const userId = user?.id as string;
   // get user type
+  const userDbId = user?.publicMetadata?.userId as string;
   const userType = user?.publicMetadata?.type;
   console.log(userId, userType);
 
   if (userType === "ngo") {
-    const organizedEvents = await getEventsByUser({ userId, page: 1 });
+    const organizedEvents = await getEventsByUser({
+      userDbId,
+    });
     return (
       <>
         {/* Events Organized */}
@@ -33,37 +37,33 @@ const ProfilePage = async ({ searchParams }: SearchParamProps) => {
 
         <section className="wrapper my-8">
           <Collection
-            data={organizedEvents?.data}
+            data={organizedEvents as EventSchemaT[]}
             emptyTitle="No events have been created yet"
             emptyStateSubtext="Go create some now"
-            collectionType="Events_Organized"
-            limit={3}
-            page={1}
-            urlParamName="eventsPage"
-            totalPages={organizedEvents?.totalPages}
+            userDbId={userDbId}
           />
         </section>
       </>
     );
   }
 
-  const orders = await getOrdersByUser({ userId, page: 1 });
-  const orderedEvents = orders?.data.map((order: IOrder) => order.event) || [];
+  // const orders = await getOrdersByUser({ userId, page: 1 });
+  // const orderedEvents = orders?.data.map((order: IOrder) => order.event) || [];
+  else {
+    return (
+      <>
+        {/* My Tickets */}
+        <section className="bg-primary-50 bg-dotted-pattern bg-cover bg-center py-5 md:py-10">
+          <div className="wrapper flex items-center justify-center sm:justify-between">
+            <h3 className="h3-bold text-center sm:text-left">My Tickets</h3>
+            <Button asChild size="lg" className="button hidden sm:flex">
+              <Link href="/#events">Explore More Events</Link>
+            </Button>
+          </div>
+        </section>
 
-  return (
-    <>
-      {/* My Tickets */}
-      <section className="bg-primary-50 bg-dotted-pattern bg-cover bg-center py-5 md:py-10">
-        <div className="wrapper flex items-center justify-center sm:justify-between">
-          <h3 className="h3-bold text-center sm:text-left">My Tickets</h3>
-          <Button asChild size="lg" className="button hidden sm:flex">
-            <Link href="/#events">Explore More Events</Link>
-          </Button>
-        </div>
-      </section>
-
-      <section className="wrapper my-8">
-        <Collection
+        <section className="wrapper my-8">
+          {/* <Collection
           data={orderedEvents}
           emptyTitle="No event tickets purchased yet"
           emptyStateSubtext="No worries - plenty of exciting events to explore!"
@@ -72,10 +72,9 @@ const ProfilePage = async ({ searchParams }: SearchParamProps) => {
           page={1}
           urlParamName="ordersPage"
           totalPages={1}
-        />
-      </section>
-    </>
-  );
-};
-
-export default ProfilePage;
+        /> */}
+        </section>
+      </>
+    );
+  }
+}

@@ -28,11 +28,12 @@ import { useRouter } from "next/navigation";
 import { createEvent, updateEvent } from "@/lib/actions/event.actions";
 import { IEvent } from "@/lib/database/models/event.model";
 import { FileUploader } from "./FileUploader";
+import { EventSchemaT } from "@/types/DbSchema";
 
 type EventFormProps = {
   userId: string;
   type: "Create" | "Update";
-  event?: IEvent;
+  event?: EventSchemaT;
   eventId?: string;
 };
 
@@ -54,7 +55,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
   });
 
   async function onSubmit(values: z.infer<typeof eventFormSchema>) {
-    console.log(values);
+    // console.log(values, type);
 
     if (type === "Create") {
       try {
@@ -86,7 +87,6 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
         });
 
         if (updatedEvent) {
-          form.reset();
           router.push(`/events/${updatedEvent.id}`);
         }
       } catch (error) {
@@ -136,7 +136,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
           />
         </div>
 
-        {/* discription */}
+        {/* discription and image*/}
         <div className="flex flex-col gap-5 md:flex-row">
           <FormField
             control={form.control}
@@ -162,7 +162,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
               <FormItem className="w-full">
                 <FormControl className="h-72">
                   <FileUploader
-                    image={field.value}
+                    image={(field.value ? field.value : "") as string}
                     onFieldChange={field.onChange}
                   />
                 </FormControl>

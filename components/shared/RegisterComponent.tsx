@@ -6,11 +6,9 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "../ui/button";
 import Checkout from "./Checkout";
-import { Prisma } from "@prisma/client";
+import { EventSchemaT } from "@/types/DbSchema";
 
-// const eventWithUserAndCatagory =
-
-const RegisterButton = ({ event }: { event: IEvent }) => {
+const RegisterComponent = ({ event }: { event: EventSchemaT }) => {
   const { user } = useUser();
   const userId = user?.publicMetadata.userId as string;
   const hasEventFinished = new Date(event.endDateTime) < new Date();
@@ -29,13 +27,13 @@ const RegisterButton = ({ event }: { event: IEvent }) => {
             </Button>
           </SignedOut>
 
-          <SignedIn>
+          {/* <SignedIn>
             <Checkout event={event} userId={userId} />
-          </SignedIn>
+          </SignedIn>  */}
         </>
       )}
     </div>
   );
 };
 
-export default RegisterButton;
+export default RegisterComponent;

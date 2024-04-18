@@ -32,11 +32,11 @@ model Event {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   title         String
-  description   String?
-  url           String?
+  description   String   @default("")
+  url           String   @default("")
   image         String?
   location      String
-  coordinates   String?
+  coordinates   String   @default("")
   startDateTime DateTime
   endDateTime   DateTime
   contact       String

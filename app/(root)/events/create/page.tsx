@@ -1,9 +1,16 @@
 import EventForm from "@/components/shared/EventForm";
 import { auth, currentUser } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 
 const CreateEvent = async () => {
   const user = await currentUser();
   const userDBId = user?.publicMetadata.userId;
+  // get user type
+  const userType = user?.publicMetadata?.type;
+
+  if (userType !== "ngo") {
+    redirect("/events");
+  }
 
   return (
     <>

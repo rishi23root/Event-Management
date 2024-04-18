@@ -1,4 +1,4 @@
-import { EventObject } from "@/types"
+import { EventFormObject } from "@/types"
 
 export const headerLinks = [
   {
@@ -15,7 +15,7 @@ export const headerLinks = [
   },
 ]
 
-export const eventDefaultValues: EventObject = {
+export const eventDefaultValues: EventFormObject = {
   title: '',
   description: '',
   location: 'online',

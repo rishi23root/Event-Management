@@ -1,9 +1,29 @@
 // page to list all the event present in the database
 
+import CategoryFilter from "@/components/shared/CategoryFilter";
+import Collection from "@/components/shared/Collection";
+import Search from "@/components/shared/Search";
 import { Button } from "@/components/ui/button";
+import { getAllEvents } from "@/lib/actions/event.actions";
+import { SearchParamProps } from "@/types";
+import { EventSchemaT } from "@/types/DbSchema";
+import { currentUser } from "@clerk/nextjs";
 import Link from "next/link";
 
-export default async function showListOfAllEvent() {
+export default async function showListOfAllEvent({
+  searchParams,
+}: SearchParamProps) {
+  const user = await currentUser();
+  const userType = user?.publicMetadata.type;
+  const searchText = (searchParams?.query as string) || "";
+  const category = (searchParams?.category as string) || "";
+
+  const events = await getAllEvents({
+    query: searchText,
+    category,
+    limit: 6,
+  });
+
   // GET ALL EVENTS in future and show them
   return (
     <>
@@ -12,35 +32,30 @@ export default async function showListOfAllEvent() {
           <h3 className=" h3-bold text-center sm:text-left">
             All Upcoming Events
           </h3>
-          <Link href="/events/create">
-            <Button className="rounded-md">Create Event +</Button>
-          </Link>
+          {userType === "ngo" && (
+            <Link href="/events/create">
+              <Button className="rounded-md text-xl">Create Event +</Button>
+            </Link>
+          )}
         </div>
       </section>
       {/* add btn to add a event */}
 
-      <section className="wrapper py-5 md:py-10">
-        <h4 className="h4-bold">Events</h4>
-        <p className="text-center sm:text-left">
-          Here are all the upcoming events
-        </p>
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {/* Event Card */}
-          <div className="event-card">
-            <div className="event-card__image">
-              <img src="/assets/images/event-placeholder.jpg" alt="event" />
-            </div>
-            <div className="event-card__content">
-              <h5 className="h5-bold">Event Title</h5>
-              <p className="text-sm text-gray-500">Event Date</p>
-              <p className="text-sm text-gray-500">Event Location</p>
-              <p className="text-sm text-gray-500">Event Description</p>
-            </div>
-            <div className="event-card__footer">
-              <button className="btn btn-primary">View Event</button>
-            </div>
-          </div>
+      <section
+        id="events"
+        className="wrapper my-8 flex flex-col gap-8 md:gap-12"
+      >
+        <div className="flex w-full flex-col gap-5 md:flex-row">
+          <Search />
+          <CategoryFilter />
         </div>
+
+        <Collection
+          data={events as EventSchemaT[]}
+          emptyTitle="No Events Found"
+          emptyStateSubtext="Come back later"
+          userDbId=""
+        />
       </section>
     </>
   );

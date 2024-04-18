@@ -1,14 +1,13 @@
 import Collection from "@/components/shared/Collection";
-import DeleteEventbtn from "@/components/shared/DeleteEvent";
-import RegisterButton from "@/components/shared/RegisterButton";
-import { Button } from "@/components/ui/button";
+import OrganiserActions from "@/components/shared/OrganiserActions";
+import RegisterComponent from "@/components/shared/RegisterComponent";
 import {
-  deleteEvent,
   getEventById,
   getRelatedEventsByCategory,
 } from "@/lib/actions/event.actions";
 import { formatDateTime } from "@/lib/utils";
 import { SearchParamProps } from "@/types";
+import { EventSchemaT } from "@/types/DbSchema";
 import { currentUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
@@ -37,7 +36,6 @@ const EventDetails = async ({
   const relatedEvents = await getRelatedEventsByCategory({
     categoryId: event.category.id,
     eventId: event.id,
-    page: searchParams.page as string,
   });
 
   return (
@@ -55,18 +53,7 @@ const EventDetails = async ({
           <div className="flex w-full flex-col gap-8 p-5 md:p-10">
             {/* update the event */}
             {userDbId === event.organizer.id && (
-              <div className="flex justify-between items-center gap-4 border-b border-primary/20 pb-2 ">
-                <span className="text-lg font-bold ">Organizer Actions -</span>
-                <div className="flex gap-4">
-                  {/* chekc if organizer is the current user */}
-                  <Link href={`/events/${event.id}/update`}>
-                    <Button className="text-xl hover:scale-105 shadow-md ">
-                      Edit Event
-                    </Button>
-                  </Link>
-                  <DeleteEventbtn eventId={event.id} />
-                </div>
-              </div>
+              <OrganiserActions eventId={event.id} />
             )}
             <div className="flex flex-col gap-6">
               <h2 className="h2-bold">{event.title}</h2>
@@ -90,7 +77,9 @@ const EventDetails = async ({
               </div>
             </div>
 
-            <RegisterButton event={event} />
+            {userDbId !== event.organizer.id && (
+              <RegisterComponent event={event} />
+            )}
 
             <div className="flex flex-col gap-5">
               <div className="flex gap-2 md:gap-3">
@@ -142,13 +131,10 @@ const EventDetails = async ({
         <h2 className="h2-bold">Related Events</h2>
 
         <Collection
-          data={relatedEvents?.data}
+          data={relatedEvents as EventSchemaT[]}
           emptyTitle="No Events Found"
           emptyStateSubtext="Come back later"
-          collectionType="All_Events"
-          limit={3}
-          page={searchParams.page as string}
-          totalPages={relatedEvents?.totalPages}
+          userDbId={userDbId}
         />
       </section>
     </>

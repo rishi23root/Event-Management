@@ -10,15 +10,15 @@ export const eventFormSchema = z.object({
   // coordinates
   coordinates: z.string(),
   // url
-  url: z.string(),
+  url: z.string().min(6, 'Url is required, Provide event link or website link'),
   // image
-  image: z.string(),
+  image: z.string().min(1, 'Image is required').nullable(),
   // startDateTime
   startDateTime: z.date(),
   // endDateTime
   endDateTime: z.date(),
-  // categoryId
-  categoryId: z.string(),
+  // categoryId should select from the list of categories 
+  categoryId: z.string().min(1, 'Category is required, chose one or create one'),
   // contact
-  contact: z.string(),
+  contact: z.string().min(1, 'Contact is required'),
 })
