@@ -29,19 +29,22 @@ model Category {
 }
 
 model Event {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
   title         String
-  description   String?
+  description   String   @default("")
+  url           String   @default("")
+  image         String?
   location      String
-  imageUrl      String
+  coordinates   String   @default("")
   startDateTime DateTime
   endDateTime   DateTime
-  url           String?
   contact       String
-  category      Category @relation(fields: [categoryId], references: [id])
-  organizer     User     @relation(fields: [userId], references: [id])
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
   categoryId    String   @db.ObjectId
   userId        String   @db.ObjectId
+
+  category  Category @relation(fields: [categoryId], references: [id])
+  organizer User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

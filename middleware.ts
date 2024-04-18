@@ -15,10 +15,11 @@ export default authMiddleware({
   },
   // create a publicRoutes regex for /events/:id but not /events/create or /events/:id/update
   // '/events/:id',
+  // '/events/:id(\/[^/]+)?',
 
   publicRoutes: [
     '/',
-    '/events/:id(\/[^/]+)?',
+    '/events/:id',
     '/api/webhooks(.*)',
     '/api/uploadthing',
   ],

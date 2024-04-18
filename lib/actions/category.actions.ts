@@ -1,30 +1,38 @@
 "use server"
 
 import { CreateCategoryParams } from "@/types"
-import { handleError } from "../utils"
-import { connectToDatabase } from "../database"
-import Category from "../database/models/category.model"
+import prisma from "../prisma"
 
 export const createCategory = async ({ categoryName }: CreateCategoryParams) => {
   try {
-    await connectToDatabase();
-
-    const newCategory = await Category.create({ name: categoryName });
-
-    return JSON.parse(JSON.stringify(newCategory));
+    const newCategory = await prisma.category.create({
+      data: {
+        name: categoryName,
+      },
+      select: {
+        id: true,
+        name: true
+      }
+    })
+    console.log("newCategory:", newCategory)
+    return newCategory
   } catch (error) {
-    handleError(error)
+    console.error(error)
   }
 }
 
 export const getAllCategories = async () => {
   try {
-    await connectToDatabase();
+    const categories = await prisma.category.findMany({
+      select: {
+        id: true,
+        name: true
+      }
+    })
+    // console.log("all Category:", categories)
 
-    const categories = await Category.find();
-
-    return JSON.parse(JSON.stringify(categories));
+    return categories
   } catch (error) {
-    handleError(error)
+    console.error(error)
   }
 }

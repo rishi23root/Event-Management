@@ -45,8 +45,6 @@ export const formatDateTime = (dateString: Date) => {
   }
 }
 
-export const convertFileToUrl = (file: File) => URL.createObjectURL(file)
-
 export const formatPrice = (price: string) => {
   const amount = parseFloat(price)
   const formattedPrice = new Intl.NumberFormat('en-US', {
@@ -85,9 +83,4 @@ export function removeKeysFromQuery({ params, keysToRemove }: RemoveUrlQueryPara
     },
     { skipNull: true }
   )
-}
-
-export const handleError = (error: unknown) => {
-  console.error(error)
-  throw new Error(typeof error === 'string' ? error : JSON.stringify(error))
 }

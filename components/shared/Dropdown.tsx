@@ -1,13 +1,4 @@
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ICategory } from "@/lib/database/models/category.model";
-import { startTransition, useEffect, useState } from "react";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -18,25 +9,35 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   createCategory,
   getAllCategories,
 } from "@/lib/actions/category.actions";
+import { AllCategories, Category } from "@/types";
+import { startTransition, useEffect, useState } from "react";
+import { Input } from "../ui/input";
 
 type DropdownProps = {
-  value?: string;
-  onChangeHandler?: () => void;
+  value: string;
+  onChangeHandler: (e: any) => void;
 };
 
 const Dropdown = ({ value, onChangeHandler }: DropdownProps) => {
-  const [categories, setCategories] = useState<ICategory[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState("");
 
   const handleAddCategory = () => {
     createCategory({
       categoryName: newCategory.trim(),
     }).then((category) => {
+      if (!category) return;
       setCategories((prevState) => [...prevState, category]);
     });
   };
@@ -44,8 +45,8 @@ const Dropdown = ({ value, onChangeHandler }: DropdownProps) => {
   useEffect(() => {
     const getCategories = async () => {
       const categoryList = await getAllCategories();
-
-      categoryList && setCategories(categoryList as ICategory[]);
+      if (!categoryList) return;
+      categoryList && setCategories(categoryList as AllCategories);
     };
 
     getCategories();
@@ -60,14 +61,15 @@ const Dropdown = ({ value, onChangeHandler }: DropdownProps) => {
         {categories.length > 0 &&
           categories.map((category) => (
             <SelectItem
-              key={category._id}
-              value={category._id}
+              key={category.id}
+              value={category.id}
               className="select-item p-regular-14"
             >
               {category.name}
             </SelectItem>
           ))}
 
+        {/* model for adding new */}
         <AlertDialog>
           <AlertDialogTrigger className="p-medium-14 flex w-full rounded-sm py-3 pl-8 text-primary-500 hover:bg-primary-50 focus:text-primary-500">
             Add new category

@@ -1,147 +1,258 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
-
-import { connectToDatabase } from '@/lib/database'
-import Event from '@/lib/database/models/event.model'
-import User from '@/lib/database/models/user.model'
-import Category from '@/lib/database/models/category.model'
-import { handleError } from '@/lib/utils'
-
 import {
-  CreateEventParams,
-  UpdateEventParams,
-  DeleteEventParams,
-  GetAllEventsParams,
-  GetEventsByUserParams,
-  GetRelatedEventsByCategoryParams,
+  EventFormObject
 } from '@/types'
+import { revalidatePath } from 'next/cache'
+import prisma from '../prisma'
 
-const getCategoryByName = async (name: string) => {
-  return Category.findOne({ name: { $regex: name, $options: 'i' } })
-}
-
-const populateEvent = (query: any) => {
-  return query
-    .populate({ path: 'organizer', model: User, select: '_id firstName lastName' })
-    .populate({ path: 'category', model: Category, select: '_id name' })
-}
 
 // CREATE
-export async function createEvent({ userId, event, path }: CreateEventParams) {
+export async function createEvent({ userId, eventInfo }: {
+  userId: string
+  eventInfo: EventFormObject
+}) {
   try {
-    await connectToDatabase()
 
-    const organizer = await User.findById(userId)
+    console.log('creating event for user ', userId, eventInfo.title)
+
+    const organizer = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+      },
+    })
+
     if (!organizer) throw new Error('Organizer not found')
 
-    const newEvent = await Event.create({ ...event, category: event.categoryId, organizer: userId })
-    revalidatePath(path)
+    const newEvent = await prisma.event.create({
+      data: {
+        title: eventInfo.title,
+        description: eventInfo.description,
+        location: eventInfo.location,
+        coordinates: eventInfo.coordinates,
+        contact: eventInfo.contact,
+        url: eventInfo.url,
+        image: eventInfo.image,
+        startDateTime: eventInfo.startDateTime,
+        endDateTime: eventInfo.endDateTime,
+        organizer: {
+          connect: {
+            id: userId,
 
-    return JSON.parse(JSON.stringify(newEvent))
+          },
+        },
+        category: {
+          connect: {
+            id: eventInfo.categoryId,
+          },
+        }
+      }
+    })
+
+    return newEvent
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
 
 // GET ONE EVENT BY ID
 export async function getEventById(eventId: string) {
   try {
-    await connectToDatabase()
-
-    const event = await populateEvent(Event.findById(eventId))
+    console.log('getting event by id', eventId)
+    const event = await prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      include: {
+        organizer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    })
 
     if (!event) throw new Error('Event not found')
 
-    return JSON.parse(JSON.stringify(event))
+    return event
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
 
 // UPDATE
-export async function updateEvent({ userId, event, path }: UpdateEventParams) {
+export async function updateEvent({ userId, eventId, eventInfo }: {
+  userId: string
+  eventId: string
+  eventInfo: EventFormObject
+}) {
   try {
-    await connectToDatabase()
 
-    const eventToUpdate = await Event.findById(event._id)
-    if (!eventToUpdate || eventToUpdate.organizer.toHexString() !== userId) {
+    console.log('updating event for user ', userId, eventId, eventInfo.title)
+    const eventToUpdate = await prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      select: {
+        id: true,
+        organizer: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    })
+
+    if (!eventToUpdate || eventToUpdate.organizer.id !== userId) {
       throw new Error('Unauthorized or event not found')
     }
 
-    const updatedEvent = await Event.findByIdAndUpdate(
-      event._id,
-      { ...event, category: event.categoryId },
-      { new: true }
-    )
-    revalidatePath(path)
+    const updatedEvent = await prisma.event.update({
+      where: {
+        id: eventId,
+      },
+      data: {
+        title: eventInfo.title,
+        description: eventInfo.description,
+        location: eventInfo.location,
+        coordinates: eventInfo.coordinates,
+        contact: eventInfo.contact,
+        url: eventInfo.url,
+        image: eventInfo.image,
+        startDateTime: eventInfo.startDateTime,
+        endDateTime: eventInfo.endDateTime,
+        category: {
+          connect: {
+            id: eventInfo.categoryId,
+          },
+        },
+      },
+    })
 
-    return JSON.parse(JSON.stringify(updatedEvent))
+    if (updatedEvent) {
+      revalidatePath(`/events/${eventId}/update`)
+    }
+
+    return updatedEvent
+
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
 
 // DELETE
-export async function deleteEvent({ eventId, path }: DeleteEventParams) {
+export async function deleteEvent({ eventId }: {
+  eventId: string
+}) {
   try {
-    await connectToDatabase()
-
-    const deletedEvent = await Event.findByIdAndDelete(eventId)
-    if (deletedEvent) revalidatePath(path)
+    console.log('deleting event by id', eventId)
+    const deletedEvent = await prisma.event.delete({
+      where: {
+        id: eventId,
+      },
+    })
+    return deletedEvent
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
 
+// ======================================
 // GET ALL EVENTS
-export async function getAllEvents({ query, limit = 6, page, category }: GetAllEventsParams) {
+
+export async function getAllEvents({ query, limit = 6, category = '' }: {
+  query: string
+  category: string
+  limit: number
+}) {
   try {
-    await connectToDatabase()
+    console.log('getting all events', query, category, limit)
 
-    const titleCondition = query ? { title: { $regex: query, $options: 'i' } } : {}
-    const categoryCondition = category ? await getCategoryByName(category) : null
-    const conditions = {
-      $and: [titleCondition, categoryCondition ? { category: categoryCondition._id } : {}],
-    }
+    const events = await prisma.event.findMany({
+      where: {
+        endDateTime: {
+          gt: new Date(),
+        },
+        title: {
+          // does need to be exact match
+          contains: query,
+        },
+        category: {
+          name: {
+            contains: category,
+          },
+        },
+      },
+      take: limit,
+      include: {
+        organizer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    })
 
-    const skipAmount = (Number(page) - 1) * limit
-    const eventsQuery = Event.find(conditions)
-      .sort({ createdAt: 'desc' })
-      .skip(skipAmount)
-      .limit(limit)
+    return events
 
-    const events = await populateEvent(eventsQuery)
-    const eventsCount = await Event.countDocuments(conditions)
-
-    return {
-      data: JSON.parse(JSON.stringify(events)),
-      totalPages: Math.ceil(eventsCount / limit),
-    }
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
 
 // GET EVENTS BY ORGANIZER
-export async function getEventsByUser({ userId, limit = 6, page }: GetEventsByUserParams) {
+export async function getEventsByUser({ userDbId }: {
+  userDbId: string
+}) {
   try {
-    await connectToDatabase()
-
-    const conditions = { organizer: userId }
-    const skipAmount = (page - 1) * limit
-
-    const eventsQuery = Event.find(conditions)
-      .sort({ createdAt: 'desc' })
-      .skip(skipAmount)
-      .limit(limit)
-
-    const events = await populateEvent(eventsQuery)
-    const eventsCount = await Event.countDocuments(conditions)
-
-    return { data: JSON.parse(JSON.stringify(events)), totalPages: Math.ceil(eventsCount / limit) }
+    const events = await prisma.event.findMany({
+      where: {
+        userId: userDbId,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        organizer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      }
+    })
+    return events
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
 
@@ -149,25 +260,38 @@ export async function getEventsByUser({ userId, limit = 6, page }: GetEventsByUs
 export async function getRelatedEventsByCategory({
   categoryId,
   eventId,
-  limit = 3,
-  page = 1,
-}: GetRelatedEventsByCategoryParams) {
+}: {
+  categoryId: string
+  eventId: string
+}) {
   try {
-    await connectToDatabase()
+    const events = await prisma.event.findMany({
+      where: {
+        categoryId: categoryId,
+        id: {
+          not: eventId,
+        },
+      },
+      include: {
+        organizer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    })
 
-    const skipAmount = (Number(page) - 1) * limit
-    const conditions = { $and: [{ category: categoryId }, { _id: { $ne: eventId } }] }
-
-    const eventsQuery = Event.find(conditions)
-      .sort({ createdAt: 'desc' })
-      .skip(skipAmount)
-      .limit(limit)
-
-    const events = await populateEvent(eventsQuery)
-    const eventsCount = await Event.countDocuments(conditions)
-
-    return { data: JSON.parse(JSON.stringify(events)), totalPages: Math.ceil(eventsCount / limit) }
+    return events
   } catch (error) {
-    handleError(error)
+    console.error(error)
+    // throw Error("error", error.message)
   }
 }
