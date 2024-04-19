@@ -5,6 +5,7 @@ import { SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "../ui/button";
+import { useState } from "react";
 const RegisterComponent = ({ event }: { event: EventSchemaT }) => {
   const { user } = useUser();
   const userDbId = user?.publicMetadata.userId as string;
@@ -16,12 +17,15 @@ const RegisterComponent = ({ event }: { event: EventSchemaT }) => {
   // get current path of the page
   const pathname = usePathname();
 
+  const [isLogged, setIsLogged] = useState(false);
+
   const handleRegister = async () => {
     console.log("Registering for event", eventId);
     if (!pathname.startsWith("/events")) {
       router.push(`/events/${eventId}`);
       return;
     }
+    setIsLogged(true);
     // save data in the backend using db actions
     const response = await registerUser({ userDbId, eventId });
     console.log(response);
@@ -31,6 +35,7 @@ const RegisterComponent = ({ event }: { event: EventSchemaT }) => {
     } else {
       console.error("Error registering user");
     }
+    setIsLogged(false);
   };
 
   if (isNgo) {
@@ -65,7 +70,9 @@ const RegisterComponent = ({ event }: { event: EventSchemaT }) => {
                 onClick={handleRegister}
                 className="button sm:w-fit shadow-md p-6 border transform transition-all duration-75 hover:bg-white hover:text-lime-600 hover:border-lime-600 hover:shadow-lg"
               >
-                <span className="text-xl">Register</span>
+                <span className="text-xl">
+                  {isLogged ? "Registering..." : "Register"}
+                </span>
               </Button>
             ) : (
               <Button className="text-lg font-semibold p-2 bg-grey-500/30 text-black">

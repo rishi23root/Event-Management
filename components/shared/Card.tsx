@@ -36,34 +36,32 @@ const Card = ({ event, userDbId }: CardProps) => {
       )}
 
       <div className="cursor-pointer flex min-h-[380px] w-full max-w-[400px] flex-col overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg md:min-h-[438px] border z-10">
-        <Image
-          src={
-            event.image
-              ? (event.image as string)
-              : "/assets/images/placeholder.png"
-          }
-          onClick={() => {
-            router.push(`/events/${event.id}`);
-          }}
-          alt={event.title}
-          width={400}
-          height={230}
-          className="flex-center flex-grow bg-gray-50 bg-cover bg-center text-grey-500 h-28 "
-        />
+        <Link
+          href={`/events/${event.id}`}
+          className="flex-center flex-grow bg-gray-50 bg-cover bg-center text-grey-500 h-28"
+        >
+          <Image
+            src={
+              event.image
+                ? (event.image as string)
+                : "/assets/images/placeholder.png"
+            }
+            alt={event.title}
+            width={400}
+            height={230}
+            className="flex-center flex-grow bg-gray-50 bg-cover bg-center text-grey-500 h-full object-cover object-center"
+          />
+        </Link>
 
         <div className="flex flex-col gap-2 p-5 md:gap-4 border-t ">
           <div>
-            <div
-              onClick={() => {
-                router.push(`/events/${event.id}`);
-              }}
-            >
+            <Link href={`/events/${event.id}`}>
               <p className="font-semibold flex-1 text-2xl">{event.title}</p>
 
               <p className="p-medium-16 p-medium-18 text-grey-500">
                 {formatDateTime(event.startDateTime).dateTime}
               </p>
-            </div>
+            </Link>
 
             <div className="flex-between w-full">
               <p className="p-medium-14 md:p-medium-16 text-lime-600 text-xl font-bold">
