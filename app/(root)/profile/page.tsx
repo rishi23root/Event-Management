@@ -4,9 +4,9 @@ import { getEventsByUser } from "@/lib/actions/event.actions";
 import { getRegiestersByUser } from "@/lib/actions/register.actions";
 import { SearchParamProps } from "@/types";
 import { EventSchemaT } from "@/types/DbSchema";
-import { currentUser } from "@clerk/nextjs";
 import Link from "next/link";
 import React from "react";
+import { currentUser } from "@clerk/nextjs";
 
 export default async function ProfilePage({ searchParams }: SearchParamProps) {
   const user = await currentUser();
@@ -46,8 +46,8 @@ export default async function ProfilePage({ searchParams }: SearchParamProps) {
     );
   } else if (userType === "volunteer") {
     const regiesteredEvent = await getRegiestersByUser(userId);
-    console.log(regiesteredEvent);
-    // const orderedEvents = orders?.data.map((order: IOrder) => order.event) || [];
+    // console.log(regiesteredEvent);
+
     return (
       <>
         {/* My Tickets */}
@@ -55,20 +55,20 @@ export default async function ProfilePage({ searchParams }: SearchParamProps) {
           <div className="wrapper flex items-center justify-center sm:justify-between">
             <h3 className="h3-bold text-center sm:text-left">My Tickets</h3>
             <Button asChild size="lg" className="button hidden sm:flex">
-              <Link href="/#events">Explore More Events</Link>
+              <Link href="/events">Explore More Events</Link>
             </Button>
           </div>
         </section>
 
         <section className="wrapper my-8">
-          {/* 
-          ### updates here and how 
-           */}
-          <Collection
-            data={regiesteredEvent}
-            emptyTitle="No event tickets purchased yet"
-            emptyStateSubtext="No worries - plenty of exciting events to explore!"
-          />
+          {regiesteredEvent?.length && (
+            <Collection
+              data={regiesteredEvent as EventSchemaT[]}
+              emptyTitle="No event tickets purchased yet"
+              emptyStateSubtext="No worries - plenty of exciting events to explore!"
+              userDbId={userDbId}
+            />
+          )}
         </section>
       </>
     );
