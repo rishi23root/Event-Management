@@ -66,13 +66,13 @@ const Card = ({ event, userDbId }: CardProps) => {
             </div>
 
             <div className="flex-between w-full">
-              <p className="p-medium-14 md:p-medium-16 text-grey-600 text-lg">
+              <p className="p-medium-14 md:p-medium-16 text-lime-600 text-xl font-bold">
                 {event.organizer.firstName} {event.organizer.lastName}
               </p>
             </div>
           </div>
           <div className="flex-1 h-max flex justify-between items-center ">
-            <p className="w-fit rounded-full bg-grey-500/10 px-4 py-2 my-2 text-grey-500 line-clamp-1 text-lg">
+            <p className="w-fit rounded-full bg-grey-500/10 px-4 py-2 my-2 text-grey-500 line-clamp-1 text-lg ">
               {event.category.name}
             </p>
             {!isEventCreator && (

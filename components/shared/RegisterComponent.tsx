@@ -1,13 +1,9 @@
 "use client";
-
-import { EventSchemaT } from "@/types/DbSchema";
 import { SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import { EventSchemaT } from "@/types/DbSchema";
-import { useRouter } from "next/navigation";
-import { usePathname } from "next/navigation";
 import { registerUser } from "@/lib/actions/register.actions";
 
 const RegisterComponent = ({ event }: { event: EventSchemaT }) => {
@@ -48,7 +44,7 @@ const RegisterComponent = ({ event }: { event: EventSchemaT }) => {
             <Button
               asChild
               size="lg"
-              className="button sm:w-fit shadow-md p-6 border transform transition-all duration-75 hover:bg-white hover:text-primary-500 hover:border-primary-500 hover:shadow-lg"
+              className="button sm:w-fit shadow-md p-6 border transform transition-all duration-75 hover:bg-white hover:text-lime-600 hover:border-lime-600 hover:shadow-lg"
             >
               <Link href="/sign-in">Get Tickets</Link>
             </Button>
@@ -61,7 +57,7 @@ const RegisterComponent = ({ event }: { event: EventSchemaT }) => {
               role="link"
               size="lg"
               onClick={handleRegister}
-              className="button sm:w-fit shadow-md p-6 border transform transition-all duration-75 hover:bg-white hover:text-primary-500 hover:border-primary-500 hover:shadow-lg"
+              className="button sm:w-fit shadow-md p-6 border transform transition-all duration-75 hover:bg-white hover:text-lime-600 hover:border-lime-600 hover:shadow-lg"
             >
               <span className="text-xl">Register</span>
             </Button>

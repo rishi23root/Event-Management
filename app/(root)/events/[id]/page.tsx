@@ -72,9 +72,9 @@ const EventDetails = async ({
                   </p>
                 </div>
 
-                <p className="p-medium-18 ml-2 mt-2 sm:mt-0">
+                <p className=" ml-2 mt-2 sm:mt-0 text-black p-bold-20 ">
                   by{" "}
-                  <span className="text-primary-500">
+                  <span className="text-lime-700">
                     {event.organizer.firstName} {event.organizer.lastName}
                   </span>
                 </p>
@@ -87,28 +87,39 @@ const EventDetails = async ({
 
             <div className="flex flex-col gap-5">
               <div className="flex gap-2 md:gap-3">
-                <Image
+                {/* <Image
                   src="/assets/icons/calendar.svg"
                   alt="calendar"
                   width={32}
                   height={32}
-                />
-                <div className="p-medium-16 lg:p-regular-20 flex flex-col ">
-                  <p>
+                /> */}
+                <div className="p-medium-16 lg:p-regular-20 flex flex-col gap-2 shadow-sm transition-all w-full">
+                  <p className="border-2 flex flex-row gap-2  p-1 rounded-xl">
+                    <Image
+                      src="/assets/icons/calendar.svg"
+                      alt="calendar"
+                      width={25}
+                      height={25}
+                    />
                     <b>From</b>-&gt;
                     {formatDateTime(event.startDateTime).dateOnly} -{" "}
                     {formatDateTime(event.startDateTime).timeOnly}
                   </p>
 
-                  <p>
+                  <p className="border-2 flex flex-row gap-2   p-1 rounded-xl shadow-sm transition-all">
+                    <Image
+                      src="/assets/icons/calendar.svg"
+                      alt="calendar"
+                      width={25}
+                      height={25}
+                    />
                     <b>To</b> -&gt; &nbsp;&nbsp;&nbsp;&nbsp;
                     {formatDateTime(event.endDateTime).dateOnly} -{" "}
                     {formatDateTime(event.endDateTime).timeOnly}
                   </p>
                 </div>
               </div>
-
-              <div className="p-regular-20 flex items-center gap-3">
+              <div className="p-regular-20 flex items-center gap-1 border-2  p-1 rounded-xl shadow-sm transition-all">
                 <Image
                   src="/assets/icons/location.svg"
                   alt="location"
@@ -119,36 +130,50 @@ const EventDetails = async ({
               </div>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 border-2 rounded-xl p-2 w-full shadow-sm transition-all">
               <p className="p-bold-20 text-grey-600">What You'll Learn:</p>
               <p className="p-medium-16 lg:p-regular-18">{event.description}</p>
-              <p className="p-medium-16 lg:p-regular-18 truncate text-primary-500 underline">
-                {event.url}
-              </p>
             </div>
+            <Link
+              className="border-2 rounded-2xl bg-lime-600 text-center text-white pl-4 pr-4 p-2 font-bold text-xl"
+              href={event.url}
+            >
+              Visit to Know more
+            </Link>
           </div>
         </div>
       </section>
 
       {userDbId === event.userId && (
         <section className="wrapper my-8 flex flex-col gap-8 md:gap-12">
-          <h2 className="h2-bold ">Registed users</h2>
+          <h2 className="h2-bold ">
+            Registed users
+            {users ? ` (${users.length})` : ""}
+          </h2>
           <div>
             {users?.map((user) => (
               // update ##############################################3
               // create a table view for the users who registered for the event with number of users at top of the table
               // or create a new componet for this all together
-              <div key={user.id} className="flex items-center gap-2">
-                <Image
-                  src={user.photo}
-                  alt="user image"
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                />
-                <p className="p-medium-16 lg:p-regular-20">
-                  {user.firstName} {user.lastName}
-                </p>
+
+              <div
+                key={user.id}
+                className="flex items-center justify-between gap-2 border-2 rounded-xl mt-5 p-2 shadow-sm transition-all"
+              >
+                <div className="flex flex-row gap-4 ">
+                  <Image
+                    src={user.photo}
+                    alt="user image"
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                  <p className="p-medium-16 lg:p-regular-20">
+                    {user.firstName} {user.lastName}
+                  </p>
+                </div>
+                <span>{user.email}</span>
+                {/* <span>{eve}</span> */}
               </div>
             ))}
           </div>
