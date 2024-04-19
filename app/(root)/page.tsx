@@ -37,16 +37,26 @@ export default async function Home({ searchParams }: SearchParamProps) {
     category,
   })) as unknown as EventSchemaT[];
 
-  const locations =
+  const eventDetails =
     events.length < 1
       ? []
       : events
-          .map((event) => event.coordinates)
-          .filter((e) => e)
+          .filter((e) => e.coordinates !== "")
+          .map((event) => {
+            return {
+              id: event.id,
+              geo: event.coordinates,
+              title: event.title,
+            };
+          })
           .map((e) => {
             // ${data.lat},${data.lon}
-            const data = e.split(",");
-            return { lat: parseFloat(data[0]), lon: parseFloat(data[1]) };
+            const data = e.geo.split(",");
+            return {
+              id: e.id,
+              geo: { lat: parseFloat(data[0]), lon: parseFloat(data[1]) },
+              title: e.title,
+            };
           });
 
   return (
@@ -78,11 +88,8 @@ export default async function Home({ searchParams }: SearchParamProps) {
       </section>
       <section className="wrapper my-8 flex flex-col gap-8 md:gap-12 max-h-fit">
         <Mapview
-          // location={[
-          //   { lon: 77.3272147, lat: 28.5706333 },
-          //   { lat: 28.6273928, lon: 77.1716954 },
-          // ]}
-          location={locations}
+          eventDetails={eventDetails}
+          showTooltip={true}
           className="h-[40vh]"
         />
       </section>

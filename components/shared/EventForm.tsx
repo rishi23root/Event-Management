@@ -59,6 +59,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
     lat: number;
     lon: number;
   }>({
+    // '28.5706333', lon: '77.3272147'
     lat: 0,
     lon: 0,
   });
@@ -66,6 +67,13 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
   const getLocation = useCallback(
     debounce(async (address: string) => {
       setLocation(address);
+      if (address.toLowerCase() === "online") {
+        setGeoLocation({
+          lat: 0,
+          lon: 0,
+        });
+        return;
+      }
       const data = await geocodeAddress(address);
       if (data) {
         setGeoLocation({
@@ -75,7 +83,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
         // update the cordinates in the form
         form.setValue("coordinates", `${data.lat},${data.lon}`);
       }
-      console.log("address", address, data, geoLocation);
+      // console.log("address", address, data, geoLocation);
     }, debounceTime),
     []
   );
@@ -240,9 +248,26 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
               </span>
             </div>
           )}
-          <div className="flex flex-col gap-5 md:flex-row w-full">
-            <Mapview location={[geoLocation]} className="h-[40vh]" />
-          </div>
+          {
+            // show the map only if the location is not online
+            location.toLowerCase() !== "online" &&
+            geoLocation.lat &&
+            geoLocation.lon ? (
+              <div className="flex flex-col gap-5 md:flex-row w-full">
+                <Mapview
+                  eventDetails={[
+                    {
+                      id: "0",
+                      geo: { lat: geoLocation.lat, lon: geoLocation.lon },
+                      title: "Event",
+                    },
+                  ]}
+                  showTooltip={false}
+                  className="h-[40vh]"
+                />
+              </div>
+            ) : null
+          }
         </div>
 
         {/* start and end date time */}
