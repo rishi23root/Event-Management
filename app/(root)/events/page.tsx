@@ -19,7 +19,7 @@ export default async function showListOfAllEvent({
   const userType = user?.publicMetadata.type;
 
   if (userType === "new") {
-    redirect("/porfile");
+    redirect("/profile");
   }
 
   const searchText = (searchParams?.query as string) || "";

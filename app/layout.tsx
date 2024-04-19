@@ -31,7 +31,7 @@ export default function RootLayout({
           suppressHydrationWarning={true}
           className={cn(poppins.variable, "relative")}
         >
-          <NextTopLoader height={3} color="#D0F0C0" />
+          <NextTopLoader height={5} color="green" />
           {children}
         </body>
       </html>
