@@ -2,6 +2,7 @@
 
 import CategoryFilter from "@/components/shared/CategoryFilter";
 import Collection from "@/components/shared/Collection";
+import Mapview from "@/components/shared/Mapview";
 import Search from "@/components/shared/Search";
 import { Button } from "@/components/ui/button";
 import { getAllEvents } from "@/lib/actions/event.actions";
@@ -24,10 +25,23 @@ export default async function showListOfAllEvent({
   const searchText = (searchParams?.query as string) || "";
   const category = (searchParams?.category as string) || "";
 
-  const events = await getAllEvents({
+  const events = (await getAllEvents({
     query: searchText,
     category,
-  });
+  })) as unknown as EventSchemaT[];
+
+  const locations =
+    events.length < 1
+      ? []
+      : events
+          .map((event) => event.coordinates)
+          .filter((e) => e.trim() !== "")
+          .map((e) => {
+            // console.log("e:", e);
+            // ${data.lat},${data.lon}
+            const data = e.split(",");
+            return { lat: parseFloat(data[0]), lon: parseFloat(data[1]) };
+          });
 
   // GET ALL EVENTS in future and show them
   return (
@@ -54,6 +68,17 @@ export default async function showListOfAllEvent({
           <Search />
           <CategoryFilter />
         </div>
+
+        <section className="wrapper my-8 flex flex-col gap-8 md:gap-12 max-h-fit">
+          <Mapview
+            // location={[
+            //   { lon: 77.3272147, lat: 28.5706333 },
+            //   { lat: 28.6273928, lon: 77.1716954 },
+            // ]}
+            location={locations}
+            className="h-[40vh]"
+          />
+        </section>
 
         <Collection
           data={events as EventSchemaT[]}

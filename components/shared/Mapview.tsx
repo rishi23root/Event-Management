@@ -14,6 +14,8 @@ function Mapview({
   location: { lat: number; lon: number }[];
   className?: string;
 }) {
+  // console.log("location:", location);
+
   const mapContainer = useRef<any>(null);
   const map = useRef<any>(null);
 
@@ -36,7 +38,7 @@ function Mapview({
   }, []);
 
   useEffect(() => {
-    console.log("location added to map:", location);
+    // console.log("location added to map:", location);
     location.forEach((palce) => {
       new maptilersdk.Marker({ color: "#32cd32" })
         .setLngLat([palce.lon, palce.lat])

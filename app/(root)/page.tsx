@@ -32,10 +32,22 @@ export default async function Home({ searchParams }: SearchParamProps) {
   const searchText = (searchParams?.query as string) || "";
   const category = (searchParams?.category as string) || "";
 
-  const events = await getAllEvents({
+  const events = (await getAllEvents({
     query: searchText,
     category,
-  });
+  })) as unknown as EventSchemaT[];
+
+  const locations =
+    events.length < 1
+      ? []
+      : events
+          .map((event) => event.coordinates)
+          .filter((e) => e)
+          .map((e) => {
+            // ${data.lat},${data.lon}
+            const data = e.split(",");
+            return { lat: parseFloat(data[0]), lon: parseFloat(data[1]) };
+          });
 
   return (
     <>
@@ -66,10 +78,11 @@ export default async function Home({ searchParams }: SearchParamProps) {
       </section>
       <section className="wrapper my-8 flex flex-col gap-8 md:gap-12 max-h-fit">
         <Mapview
-          location={[
-            { lon: 77.3272147, lat: 28.5706333 },
-            { lat: 28.6273928, lon: 77.1716954 },
-          ]}
+          // location={[
+          //   { lon: 77.3272147, lat: 28.5706333 },
+          //   { lat: 28.6273928, lon: 77.1716954 },
+          // ]}
+          location={locations}
           className="h-[40vh]"
         />
       </section>
@@ -88,7 +101,7 @@ export default async function Home({ searchParams }: SearchParamProps) {
         </div>
 
         <Collection
-          data={events as unknown as EventSchemaT[]}
+          data={events}
           emptyTitle="No Events Found"
           emptyStateSubtext="Come back later"
           userDbId="hii"
