@@ -35,49 +35,54 @@ const Card = ({ event, userDbId }: CardProps) => {
         </div>
       )}
 
-      <Link href={`/events/${event.id}`}>
-        <div className="cursor-pointer flex min-h-[380px] w-full max-w-[400px] flex-col overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg md:min-h-[438px] border z-10">
-          <Image
-            src={
-              event.image
-                ? (event.image as string)
-                : "/assets/images/placeholder.png"
-            }
-            alt={event.title}
-            width={400}
-            height={230}
-            className="flex-center flex-grow bg-gray-50 bg-cover bg-center text-grey-500 h-28 "
-          />
+      <div className="cursor-pointer flex min-h-[380px] w-full max-w-[400px] flex-col overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg md:min-h-[438px] border z-10">
+        <Image
+          src={
+            event.image
+              ? (event.image as string)
+              : "/assets/images/placeholder.png"
+          }
+          onClick={() => {
+            router.push(`/events/${event.id}`);
+          }}
+          alt={event.title}
+          width={400}
+          height={230}
+          className="flex-center flex-grow bg-gray-50 bg-cover bg-center text-grey-500 h-28 "
+        />
 
-          <div className="flex flex-col gap-2 p-5 md:gap-4 border-t ">
-            <div>
-              <div>
-                <p className="font-semibold flex-1 text-2xl">{event.title}</p>
+        <div className="flex flex-col gap-2 p-5 md:gap-4 border-t ">
+          <div>
+            <div
+              onClick={() => {
+                router.push(`/events/${event.id}`);
+              }}
+            >
+              <p className="font-semibold flex-1 text-2xl">{event.title}</p>
 
-                <p className="p-medium-16 p-medium-18 text-grey-500">
-                  {formatDateTime(event.startDateTime).dateTime}
-                </p>
-              </div>
-
-              <div className="flex-between w-full">
-                <p className="p-medium-14 md:p-medium-16 text-lime-600 text-xl font-bold">
-                  {event.organizer.firstName} {event.organizer.lastName}
-                </p>
-              </div>
-            </div>
-            <div className="flex-1 h-max flex justify-between items-center ">
-              <p className="w-fit rounded-full bg-grey-500/10 px-4 py-2 my-2 text-grey-500 line-clamp-1 text-lg ">
-                {event.category.name}
+              <p className="p-medium-16 p-medium-18 text-grey-500">
+                {formatDateTime(event.startDateTime).dateTime}
               </p>
-              {!isEventCreator && (
-                <p className="scale-105 z-50">
-                  <RegisterComponent event={event} />
-                </p>
-              )}
+            </div>
+
+            <div className="flex-between w-full">
+              <p className="p-medium-14 md:p-medium-16 text-lime-600 text-xl font-bold">
+                {event.organizer.firstName} {event.organizer.lastName}
+              </p>
             </div>
           </div>
+          <div className="flex-1 h-max flex justify-between items-center ">
+            <p className="w-fit rounded-full bg-grey-500/10 px-4 py-2 my-2 text-grey-500 line-clamp-1 text-lg ">
+              {event.category.name}
+            </p>
+            {!isEventCreator && (
+              <p className="scale-105 z-50">
+                <RegisterComponent event={event} />
+              </p>
+            )}
+          </div>
         </div>
-      </Link>
+      </div>
     </div>
   );
 };

@@ -14,7 +14,7 @@ export default async function ProfilePage({ searchParams }: SearchParamProps) {
   // get user type
   const userDbId = user?.publicMetadata?.userId as string;
   const userType = user?.publicMetadata?.type;
-  console.log(userId, userType);
+  // console.log(userId, userType);
 
   if (userType === "ngo") {
     const organizedEvents = await getEventsByUser({
