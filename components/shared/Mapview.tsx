@@ -11,6 +11,7 @@ function Mapview({
   eventDetails,
   className,
   showTooltip = true,
+  userLocation,
 }: {
   eventDetails: {
     id: string;
@@ -19,6 +20,7 @@ function Mapview({
   }[];
   className?: string;
   showTooltip: boolean;
+  userLocation?: { lat: number; lon: number };
 }) {
   // console.log("location:", location);
 
@@ -39,7 +41,7 @@ function Mapview({
   useEffect(() => {
     if (map.current) return; // stops map from intializing more than once
 
-    console.log(centerLocation, location[0]);
+    // console.log(centerLocation, location[0]);
 
     map.current = new maptilersdk.Map({
       container: mapContainer.current,
@@ -59,17 +61,24 @@ function Mapview({
       location.forEach((place) => {
         bounds.extend([place.lon, place.lat]);
       });
-      map.current.fitBounds(bounds, { padding: 50 });
+      // userLocation.lon, userLocation.lat])
+      if (userLocation) {
+        bounds.extend([userLocation.lon, userLocation.lat]);
+      }
+      if (!bounds.isEmpty()) {
+        map.current.fitBounds(bounds, { padding: 50 });
+      }
     }
   }, [location]);
 
   useEffect(() => {
     // console.log("location added to map:", location);
+
     eventDetails.forEach((each) => {
       const palce = each.geo;
 
-      // create a marker with the tooltip
       if (showTooltip) {
+        // create a marker with the tooltip
         const popup = new maptilersdk.Popup()
           .setLngLat([palce.lon, palce.lat])
           .setHTML(
@@ -90,6 +99,21 @@ function Mapview({
         marcadores.push(newMarker);
       }
     });
+    if (userLocation) {
+      const popup = new maptilersdk.Popup()
+        .setLngLat([userLocation.lon, userLocation.lat])
+        .setHTML(
+          // remove the ring from the link on open
+          `<span class="text-blue-500 text-md font-bold hover:underline
+        focus:outline-none focus:ring-0 focus:ring-offset-0 focus:ring-offset-transparent focus:ring-transparent">${"username"}</span>`
+        )
+        .addTo(map.current);
+      const newMarker = new maptilersdk.Marker({ color: "#0000FF" })
+        .setLngLat([userLocation.lon, userLocation.lat])
+        .setPopup(popup)
+        .addTo(map.current);
+      marcadores.push(newMarker);
+    }
     return () => {
       marcadores.forEach((marker: any) => {
         marker.remove();

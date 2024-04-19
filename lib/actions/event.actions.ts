@@ -190,6 +190,7 @@ export async function getAllEvents({ query, category = '' }: {
         title: {
           // does need to be exact match
           contains: query,
+          mode: 'insensitive',
         },
         category: {
           name: {

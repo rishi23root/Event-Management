@@ -18,6 +18,7 @@ const CategoryFilter = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const currentCategory = searchParams.get("category") || "All";
 
   useEffect(() => {
     const getCategories = async () => {
@@ -49,7 +50,10 @@ const CategoryFilter = () => {
   };
 
   return (
-    <Select onValueChange={(value: string) => onSelectCategory(value)}>
+    <Select
+      defaultValue={currentCategory}
+      onValueChange={(value: string) => onSelectCategory(value)}
+    >
       <SelectTrigger className="select-field">
         <SelectValue placeholder="Category" />
       </SelectTrigger>
