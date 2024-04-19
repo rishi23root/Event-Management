@@ -19,7 +19,7 @@ import { redirect } from "next/navigation";
 // return lat : '28.5706333', lon: '77.3272147'
 
 export default async function Home({ searchParams }: SearchParamProps) {
-  // const data = await geocodeAddress("noida");
+  // const data = await geocodeAddress("delhi");
   // console.log("location data:", data); // lat and lon of the address
 
   const user = await currentUser();
@@ -66,7 +66,10 @@ export default async function Home({ searchParams }: SearchParamProps) {
       </section>
       <section className="wrapper my-8 flex flex-col gap-8 md:gap-12 max-h-fit">
         <Mapview
-          location={[{ lng: 77.3272147, lat: 28.5706333 }]}
+          location={[
+            { lon: 77.3272147, lat: 28.5706333 },
+            { lat: 28.6273928, lon: 77.1716954 },
+          ]}
           className="h-[40vh]"
         />
       </section>

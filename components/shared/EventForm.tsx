@@ -23,6 +23,12 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Dropdown from "./Dropdown";
 import { FileUploader } from "./FileUploader";
+import { useCallback, useEffect, useState } from "react";
+import debounce from "lodash.debounce";
+import { geocodeAddress } from "@/lib/actions/gelocate.actions";
+import Mapview from "./Mapview";
+
+const debounceTime = 1000; // 800 is low 1500 is high
 
 type EventFormProps = {
   userId: string;
@@ -47,6 +53,32 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
     defaultValues: initialValues,
     mode: "onSubmit",
   });
+
+  const [location, setLocation] = useState<string>("");
+  const [geoLocation, setGeoLocation] = useState<{
+    lat: number;
+    lon: number;
+  }>({
+    lat: 0,
+    lon: 0,
+  });
+
+  const getLocation = useCallback(
+    debounce(async (address: string) => {
+      setLocation(address);
+      const data = await geocodeAddress(address);
+      if (data) {
+        setGeoLocation({
+          lat: parseFloat(data.lat) || 0,
+          lon: parseFloat(data.lon) || 0,
+        });
+        // update the cordinates in the form
+        form.setValue("coordinates", `${data.lat},${data.lon}`);
+      }
+      console.log("address", address, data, geoLocation);
+    }, debounceTime),
+    []
+  );
 
   async function onSubmit(values: z.infer<typeof eventFormSchema>) {
     // console.log(values, type);
@@ -171,42 +203,45 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
           <FormField
             control={form.control}
             name="location"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormControl>
-                  <div className="flex-center h-[54px] w-full overflow-hidden rounded-full bg-grey-50 px-4 py-2">
-                    <Image
-                      src="/assets/icons/location-grey.svg"
-                      alt="calendar"
-                      width={24}
-                      height={24}
-                    />
+            render={({ field }) => {
+              const { onChange, ...rest } = field;
+              return (
+                <FormItem className="w-full">
+                  <FormControl>
+                    <div className="flex-center h-[54px] w-full overflow-hidden rounded-full bg-grey-50 px-4 py-2">
+                      <Image
+                        src="/assets/icons/location-grey.svg"
+                        alt="calendar"
+                        width={24}
+                        height={24}
+                      />
 
-                    <Input
-                      placeholder="Event location or Online"
-                      {...field}
-                      className="input-field"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+                      <Input
+                        placeholder="Event location or Online"
+                        onChange={(e) => {
+                          getLocation(e.target.value);
+                          onChange(e.target.value);
+                        }}
+                        {...rest}
+                        className="input-field"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
-
-          {/* 
-          1. get lot and long from loacition
-          2. show the location on map using markers 
-          */}
-          <div className="flex flex-col gap-5 md:flex-row w-full">
-            <div className="flex-center w-full overflow-hidden rounded-2xl h-[40vh]">
-              <iframe
-                title="con"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14005.909575911941!2d77.13092180929353!3d28.645421158896152!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d0304934fb67d%3A0x232534e44837b1bf!2sKirti%20Nagar%2C%20Delhi!5e0!3m2!1sen!2sin!4v1713452824070!5m2!1sen!2sin"
-                className="w-full h-full"
-                loading="lazy"
-              />
+          {location && (
+            <div className="text-grey-600 w-full flex justify-between">
+              <span>Location: {location}</span>
+              <span>
+                Latitude: {geoLocation.lat} Longitude: {geoLocation.lon}
+              </span>
             </div>
+          )}
+          <div className="flex flex-col gap-5 md:flex-row w-full">
+            <Mapview location={[geoLocation]} className="h-[40vh]" />
           </div>
         </div>
 

@@ -1,6 +1,9 @@
+'use server';
+
 import axios from 'axios';
-export async function geocodeAddress(address: string): Promise<{ lat: number; lon: number } | null> {
+export async function geocodeAddress(address: string): Promise<{ lat: string; lon: string } | null> {
     // return the lat and lon of the address
+    console.log('GEOCODE_API_KEY:', process.env.GEOCODE_API_KEY);
     if (!process.env.GEOCODE_API_KEY) {
         throw new Error('GEOCODE_API_KEY is not provided');
     }
