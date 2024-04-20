@@ -38,6 +38,7 @@ export async function createEvent({ userId, eventInfo }: {
         image: eventInfo.image,
         startDateTime: eventInfo.startDateTime,
         endDateTime: eventInfo.endDateTime,
+        minVolenteer: eventInfo.minVolenteer,
         organizer: {
           connect: {
             id: userId,

@@ -1,11 +1,10 @@
 "use client";
 import { formatDateTime } from "@/lib/utils";
+import { EventSchemaT } from "@/types/DbSchema";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
-import { DeleteConfirmation } from "./DeleteConfirmation";
-import { EventSchemaT } from "@/types/DbSchema";
 import { useRouter } from "next/navigation";
+import { DeleteConfirmation } from "./DeleteConfirmation";
 import RegisterComponent from "./RegisterComponent";
 
 type CardProps = {
@@ -67,6 +66,10 @@ const Card = ({ event, userDbId }: CardProps) => {
               <p className="p-medium-14 md:p-medium-16 text-lime-600 text-xl font-bold">
                 {event.organizer.firstName} {event.organizer.lastName}
               </p>
+              <div className="text-md animate-pulse ">
+                {event.attendees.length < event.minVolenteer &&
+                  `${event.minVolenteer - event.attendees.length} - spots left`}
+              </div>
             </div>
           </div>
           <div className="flex-1 h-max flex justify-between items-center ">

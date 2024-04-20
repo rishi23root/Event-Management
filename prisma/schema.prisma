@@ -45,6 +45,7 @@ model Event {
   categoryId    String   @db.ObjectId
   userId        String   @db.ObjectId
   attendees     String[] @default([])
+  minVolenteer  Int      @default(0)
 
   category  Category @relation(fields: [categoryId], references: [id])
   organizer User     @relation(fields: [userId], references: [id])

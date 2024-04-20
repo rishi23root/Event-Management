@@ -42,57 +42,9 @@ export type EventFormObject = {
   endDateTime: Date
   categoryId: string
   contact: string
+  minVolenteer: number
 }
 
-export type Event = {
-  _id: string
-  title: string
-  description: string
-  price: string
-  isFree: boolean
-  imageUrl: string
-  location: string
-  startDateTime: Date
-  endDateTime: Date
-  url: string
-  organizer: {
-    _id: string
-    firstName: string
-    lastName: string
-  }
-  category: {
-    _id: string
-    name: string
-  }
-}
-
-// ====== ORDER PARAMS
-export type CheckoutOrderParams = {
-  eventTitle: string
-  eventId: string
-  price: string
-  isFree: boolean
-  buyerId: string
-}
-
-export type CreateOrderParams = {
-  stripeId: string
-  eventId: string
-  buyerId: string
-  totalAmount: string
-  createdAt: Date
-}
-
-export type GetOrdersByEventParams = {
-  eventId: string
-  searchString: string
-}
-
-export type GetOrdersByUserParams = {
-  userId: string | null
-  limit?: number
-  page: string | number | null
-}
 
 // ====== URL QUERY PARAMS
 export type UrlQueryParams = {

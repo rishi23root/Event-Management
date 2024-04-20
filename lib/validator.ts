@@ -21,4 +21,6 @@ export const eventFormSchema = z.object({
   categoryId: z.string().min(1, 'Category is required, chose one or create one'),
   // contact
   contact: z.string().min(1, 'Contact is required'),
+  // minVolenteer should be a positive number and more than 0
+  minVolenteer: z.number().nonnegative('Minimum volenteer must be a positive number').min(1, 'Minimum volenteer must be more than 0')
 })

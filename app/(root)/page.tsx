@@ -49,7 +49,7 @@ export default async function Home({ searchParams }: SearchParamProps) {
     category,
   })) as unknown as EventSchemaT[];
 
-  // console.log("initial total event :", events.length);
+  console.log("initial total event :", events.length);
 
   const eventsFilterByLocation =
     events && events.length < 1

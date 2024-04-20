@@ -18,19 +18,31 @@ import {
 
 import { deleteEvent } from "@/lib/actions/event.actions";
 
-export const DeleteConfirmation = ({ eventId }: { eventId: string }) => {
+export const DeleteConfirmation = ({
+  eventId,
+  children,
+  cb,
+}: {
+  eventId: string;
+  children?: React.ReactNode;
+  cb?: () => void;
+}) => {
   const pathname = usePathname();
   let [isPending, startTransition] = useTransition();
 
   return (
     <AlertDialog>
       <AlertDialogTrigger>
-        <Image
-          src="/assets/icons/delete.svg"
-          alt="edit"
-          width={20}
-          height={20}
-        />
+        {children ? (
+          children
+        ) : (
+          <Image
+            src="/assets/icons/delete.svg"
+            alt="edit"
+            width={20}
+            height={20}
+          />
+        )}
       </AlertDialogTrigger>
 
       <AlertDialogContent className="bg-white">
@@ -48,6 +60,9 @@ export const DeleteConfirmation = ({ eventId }: { eventId: string }) => {
             onClick={() =>
               startTransition(async () => {
                 await deleteEvent({ eventId });
+                if (cb) {
+                  cb();
+                }
               })
             }
           >

@@ -73,6 +73,7 @@ export type EventSchemaBaseT = {
     userId: string;
     createdAt: Date;
     updatedAt: Date;
+    minVolenteer: number;
 }
 
 export type EventSchemaOrganizerT = {

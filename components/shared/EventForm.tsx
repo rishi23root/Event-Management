@@ -105,9 +105,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
       } catch (error) {
         console.log(error);
       }
-    }
-
-    if (type === "Update") {
+    } else if (type === "Update") {
       if (!eventId) {
         router.back();
         return;
@@ -337,7 +335,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
           />
         </div>
 
-        {/* link and url  */}
+        {/* contact and minVolenteer */}
         <div className="flex flex-col gap-5 md:flex-row">
           <FormField
             control={form.control}
@@ -365,6 +363,39 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="minVolenteer"
+            render={({ field }) => {
+              return (
+                <FormItem className="w-full">
+                  <FormControl>
+                    <div className="flex-center h-[54px] w-full overflow-hidden rounded-full bg-grey-50 px-4 py-2">
+                      <Image
+                        src="/assets/icons/menu.svg"
+                        alt="link"
+                        width={24}
+                        height={24}
+                      />
+
+                      <Input
+                        placeholder="Minimum volenteer"
+                        type="number"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(parseInt(e.target.value, 10));
+                        }}
+                        className="input-field"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+        </div>
+        <div className="flex flex-col gap-5 md:flex-row">
           <FormField
             control={form.control}
             name="url"

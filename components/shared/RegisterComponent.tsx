@@ -4,8 +4,9 @@ import { EventSchemaT } from "@/types/DbSchema";
 import { SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Button } from "../ui/button";
 import { useState } from "react";
+import { Button } from "../ui/button";
+
 const RegisterComponent = ({ event }: { event: EventSchemaT }) => {
   const { user } = useUser();
   const userDbId = user?.publicMetadata.userId as string;

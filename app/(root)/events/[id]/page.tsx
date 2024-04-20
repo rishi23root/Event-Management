@@ -19,6 +19,7 @@ const EventDetails = async ({
 }: SearchParamProps) => {
   const user = await currentUser();
   const userDbId = user?.publicMetadata.userId as string;
+  const userType = user?.publicMetadata.type as string;
 
   const event = await getEventById(id);
 
@@ -40,7 +41,7 @@ const EventDetails = async ({
   });
 
   const users = await getRegistersByEvent(event.id);
-  console.log(users);
+  // console.log(users);
 
   return (
     <>
@@ -63,27 +64,45 @@ const EventDetails = async ({
             <div className="flex flex-col gap-6">
               <h2 className="h2-bold">{event.title}</h2>
 
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div className="flex gap-3">
-                  <p className="p-bold-20 rounded-full bg-green-500/10 px-5 py-2 text-green-700">
-                    FREE
-                  </p>
-                  <p className="p-medium-16 rounded-full bg-grey-500/10 px-4 py-2.5 text-grey-500">
-                    {event.category.name}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between">
+                <div className="flex flex-row gap-3 items-center">
+                  <div className="flex gap-3">
+                    <p className="p-bold-20 rounded-full bg-green-500/10 px-5 py-2 text-green-700">
+                      FREE
+                    </p>
+                    <p className="p-medium-16 rounded-full bg-grey-500/10 px-4 py-2.5 text-grey-500">
+                      {event.category.name}
+                    </p>
+                  </div>
+                  <p className=" ml-2 mt-2 sm:mt-0 text-black p-bold-20 ">
+                    by{" "}
+                    <span className="text-lime-700">
+                      {event.organizer.firstName} {event.organizer.lastName}
+                    </span>
                   </p>
                 </div>
 
-                <p className=" ml-2 mt-2 sm:mt-0 text-black p-bold-20 ">
-                  by{" "}
-                  <span className="text-lime-700">
-                    {event.organizer.firstName} {event.organizer.lastName}
-                  </span>
-                </p>
+                {userType === "ngo" && (
+                  <div className="text-2xl font-semibold animate-pulse">
+                    {event.attendees.length < event.minVolenteer &&
+                      `${
+                        event.minVolenteer - event.attendees.length
+                      } - spots left`}
+                  </div>
+                )}
               </div>
             </div>
 
             {userDbId !== event.organizer.id && (
-              <RegisterComponent event={event} />
+              <div className="flex justify-between items-center">
+                <RegisterComponent event={event} />
+                <div className="text-2xl font-semibold animate-pulse">
+                  {event.attendees.length < event.minVolenteer &&
+                    `${
+                      event.minVolenteer - event.attendees.length
+                    } - spots left`}
+                </div>
+              </div>
             )}
 
             <div className="flex flex-col gap-5">

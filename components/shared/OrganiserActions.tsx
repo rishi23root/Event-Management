@@ -4,6 +4,7 @@ import { deleteEvent } from "@/lib/actions/event.actions";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
+import { DeleteConfirmation } from "./DeleteConfirmation";
 
 export default function OrganiserActions({ eventId }: { eventId: string }) {
   const router = useRouter();
@@ -17,16 +18,16 @@ export default function OrganiserActions({ eventId }: { eventId: string }) {
             Edit Event
           </Button>
         </Link>
-        <Button
-          className="text-xl hover:scale-105 shadow-md bg-red-400 hover:bg-gray-700"
-          onClick={() => {
-            deleteEvent({ eventId }).then((res) => {
-              router.push("/events");
-            });
+        <DeleteConfirmation
+          eventId={eventId}
+          cb={() => {
+            router.push("/events");
           }}
         >
-          Delete Event
-        </Button>
+          <span className="text-xl hover:scale-105 shadow-md bg-red-400 hover:bg-gray-700 p-[6px] rounded-md text-white">
+            Delete Event
+          </span>
+        </DeleteConfirmation>
       </div>
     </div>
   );

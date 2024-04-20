@@ -22,10 +22,12 @@ const NearYou = () => {
   ]);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentNeerByValue = searchParams.get("neerBy");
-  const currentNeerBy = currentNeerByValue
-    ? `Around - ${currentNeerByValue} km`
-    : "All";
+  const currentNeerByValue = searchParams.get("neerBy") || "";
+  const currentNeerBy = currentNeerByValue.length
+    ? currentNeerByValue !== "All"
+      ? `Around - ${currentNeerByValue} km`
+      : "All"
+    : undefined;
 
   function getLocation() {
     return new Promise((resolve, reject) => {
@@ -65,6 +67,11 @@ const NearYou = () => {
           key: "neerBy",
           value: value,
         });
+
+        // add latnlon if not present
+        if (searchParams.get("latnlon")) {
+          newUrl = newUrl.replace(/(&*)latnlon=[^&]*/g, "");
+        }
         newUrl =
           newUrl +
           "&latnlon=" +
@@ -78,11 +85,7 @@ const NearYou = () => {
         params: searchParams.toString(),
         keysToRemove: ["neerBy"],
       });
-      // ## import to remove the latnlon
-      // not revoing some hard errors
-
       // remove latnlon
-      console.log(newUrl);
       newUrl = newUrl.replace(/(&*)latnlon=[^&]*/g, "");
       console.log(newUrl);
     }

@@ -15,6 +15,10 @@ export const headerLinks = [
   },
 ]
 
+var date = new Date();
+var newDate = new Date();
+newDate.setDate(date.getDate() + 2);
+
 export const eventDefaultValues: EventFormObject = {
   title: '',
   description: '',
@@ -22,8 +26,9 @@ export const eventDefaultValues: EventFormObject = {
   coordinates: '',
   url: '',
   image: '',
-  startDateTime: new Date(),
-  endDateTime: new Date(),
+  startDateTime: date,
+  endDateTime: newDate,
   categoryId: '',
   contact: '',
+  minVolenteer: 1,
 }
